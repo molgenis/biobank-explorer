@@ -9,7 +9,7 @@ export default {
     }
     let ids = biobankIds
     if (rsql && rsql.length) {
-      ids = collectionIds
+      ids = collectionIds // CollectionBiobankDictionary contains collectionId with connected BiobankId
       // biobank IDs present in collectionIds
         .map(({ biobankId }) => biobankId)
       // also present in biobankIds
@@ -19,9 +19,9 @@ export default {
     }
     return ids.map(biobankId => {
       if (!Object.prototype.hasOwnProperty.call(biobanks, biobankId)) {
-        return biobankId
+        return biobankId // "biobankId"
       }
-      const biobank = biobanks[biobankId]
+      const biobank = biobanks[biobankId] // biobankObject corresponding to the given id
       return {
         ...biobank,
         collections: filterCollectionTree(collectionIds.map(it => it.collectionId), biobank.collections)

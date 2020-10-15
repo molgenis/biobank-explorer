@@ -20,7 +20,7 @@ export default {
   biobanks: {},
   // IDs of biobanks matching the biobank filters
   biobankIds: undefined,
-  // IDs of collections matching the collection filters
+  // CollectionBiobankDictionary contains collectionId with connected BiobankId with collectionIds matching the collection filters
   collectionIds: undefined,
   /* A single biobank object which is fetched by ID for showing the BiobankReportCard component */
   biobankReport: undefined,
