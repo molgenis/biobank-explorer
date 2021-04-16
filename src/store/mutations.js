@@ -48,7 +48,9 @@ export default {
 
     Vue.set(state.filters.selections, name, [...new Set(filterValues)])
     Vue.set(state.filters.labels, name, [...new Set(filterTexts)])
-    createBookmark(router, state.filters.selections, state.selectedCollections)
+    if (router !== undefined) {
+      createBookmark(router, state.filters.selections, state.selectedCollections)
+    }
   },
   UpdateAllFilters (state, selections) {
     state.filters.selections = {}
@@ -95,6 +97,14 @@ export default {
     const newNonCommercialCollections = state.nonCommercialCollections.concat(collections.filter(collection => !collection.commercialUse).map(collection => collection.id))
     state.nonCommercialCollections = [...new Set(newNonCommercialCollections)]
   },
+  SetNetworks (state, networks) {
+    networks.forEach(network => {
+      Vue.set(state.networks, network.id, network)
+    })
+  },
+  SetNetworksIds (state, networksIds) {
+    state.networksIds = networksIds
+  },
   SetQualityStandardDictionary (state, response) {
     // Combine arrays from two tables and deduplicate
     const allStandards = [...new Set(
@@ -119,6 +129,7 @@ export default {
       collectionId: item.data.id,
       collectionName: item.data.label || item.data.name,
       biobankId: item.data.biobank.data.id,
+      networksIds: item.data.network.items.map(item => item.data.id),
       isSubcollection: item.data.parent_collection !== undefined
     }))
     state.collectionInfo = collectionInfo

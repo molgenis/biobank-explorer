@@ -52,7 +52,8 @@
 
       <div class="row">
         <div class="col-md-12">
-          <biobank-cards-container></biobank-cards-container>
+          <network-cards-container v-if="networkView"></network-cards-container>
+          <biobank-cards-container v-else></biobank-cards-container>
         </div>
       </div>
     </div>
@@ -163,6 +164,7 @@
 <script>
 import { CartSelectionToast } from '@molgenis-ui/components-library'
 import BiobankCardsContainer from './cards/BiobankCardsContainer'
+import NetworkCardsContainer from './cards/NetworkCardsContainer'
 import FilterContainer from './filters/FilterContainer'
 import ResultHeader from './ResultHeader'
 import { mapGetters, mapActions, mapState, mapMutations } from 'vuex'
@@ -171,8 +173,15 @@ import CollectionSelectAll from '@/components/buttons/CollectionSelectAll.vue'
 
 export default {
   name: 'biobank-explorer-container',
+  props: {
+    networkView: {
+      type: Boolean,
+      default: true
+    }
+  },
   components: {
     BiobankCardsContainer,
+    NetworkCardsContainer,
     FilterContainer,
     ResultHeader,
     CartSelectionToast,
@@ -256,6 +265,7 @@ export default {
     ...mapActions([
       'GetCollectionInfo',
       'GetBiobankIds',
+      'GetNetworkIds',
       'GetPodiumCollections',
       'GetBiobankIdsForQuality',
       'GetCollectionIdsForQuality'
@@ -327,6 +337,9 @@ export default {
     // check if collections have been added off-screen.
     if (this.selectedCollections.length) {
       createBookmark(this.$router, this.activeFilters, this.selectedCollections)
+    }
+    if (this.networkView) {
+      this.GetNetworkIds()
     }
   }
 }

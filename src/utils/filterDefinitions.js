@@ -112,30 +112,30 @@ const filterDefinitions = (state) => [
     maxVisibleOptions: 25,
     humanReadableString: 'Biobank collaboration type(s):'
   },
-  {
-    component: 'CheckboxFilter',
-    name: 'biobank_network',
-    label: 'Biobank network',
-    type: 'checkbox-filter',
-    table: 'eu_bbmri_eric_networks',
-    options: genericFilterOptions('eu_bbmri_eric_networks'),
-    initiallyCollapsed: !state.route.query.biobank_network,
-    filters: state.filters.selections.biobank_network,
-    maxVisibleOptions: 25,
-    humanReadableString: 'Biobank with network(s):'
-  },
-  {
-    component: 'CheckboxFilter',
-    name: 'collection_network',
-    label: 'Collection network',
-    type: 'checkbox-filter',
-    table: 'eu_bbmri_eric_networks',
-    options: genericFilterOptions('eu_bbmri_eric_networks'),
-    initiallyCollapsed: !state.route.query.collection_network,
-    filters: state.filters.selections.collection_network,
-    maxVisibleOptions: 25,
-    humanReadableString: 'Collection with network(s):'
-  },
+  // {
+  //   component: 'CheckboxFilter',
+  //   name: 'biobank_network',
+  //   label: 'Biobank network',
+  //   type: 'checkbox-filter',
+  //   table: 'eu_bbmri_eric_networks',
+  //   options: genericFilterOptions('eu_bbmri_eric_networks'),
+  //   initiallyCollapsed: !state.route.query.biobank_network,
+  //   filters: state.filters.selections.biobank_network,
+  //   maxVisibleOptions: 25,
+  //   humanReadableString: 'Biobank with network(s):'
+  // },
+  // {
+  //   component: 'CheckboxFilter',
+  //   name: 'collection_network',
+  //   label: 'Collection network',
+  //   type: 'checkbox-filter',
+  //   table: 'eu_bbmri_eric_networks',
+  //   options: genericFilterOptions('eu_bbmri_eric_networks'),
+  //   initiallyCollapsed: !state.route.query.collection_network,
+  //   filters: state.filters.selections.collection_network,
+  //   maxVisibleOptions: 25,
+  //   humanReadableString: 'Collection with network(s):'
+  // },
   {
     component: 'CheckboxFilter',
     name: 'dataType',

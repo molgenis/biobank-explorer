@@ -80,7 +80,7 @@ export default {
    */
   GetCollectionInfo ({ commit, getters }) {
     commit('SetCollectionInfo', undefined)
-    let url = '/api/data/eu_bbmri_eric_collections?filter=id,biobank(id,name,label),name,label,collaboration_commercial,parent_collection&expand=biobank&size=10000&sort=biobank_label'
+    let url = '/api/data/eu_bbmri_eric_collections?filter=id,biobank(id,name,label),network(id,name,label),name,label,collaboration_commercial,parent_collection&expand=biobank,network&size=10000&sort=biobank_label'
     if (getters.rsql) {
       url = `${url}&q=${encodeRsqlValue(getters.rsql)}`
     }
@@ -95,13 +95,31 @@ export default {
   },
   GetBiobankIds ({ commit, getters }) {
     commit('SetBiobankIds', undefined)
-    let url = '/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name'
+    let url = '/api/data/eu_bbmri_eric_biobanks?filter=id,network(id,name)&expand=network&size=10000&sort=name'
     if (getters.biobankRsql) {
       url = `${url}&q=${encodeRsqlValue(getters.biobankRsql)}`
     }
     api.get(url)
       .then(response => {
         commit('SetBiobankIds', response.items.map(item => item.data.id))
+      }, error => {
+        commit('SetError', error)
+      })
+  },
+  GetNetworkIds ({ commit, getters }) {
+    commit('SetNetworksIds', undefined)
+    let url = '/api/data/eu_bbmri_eric_networks?filter=id,name&size=10000&sort=name'
+    if (getters.networkRsql) {
+      url = `${url}&q=${encodeRsqlValue(getters.networkRsql)}`
+    }
+    api.get(url)
+      .then(response => {
+        const networks = response.items.map(item => item.data)
+        const networkFilters = response.items.map(item => { return { text: item.data.name, value: item.data.id } })
+        commit('SetNetworks', networks)
+        commit('SetNetworksIds', networks.map(network => network.id))
+        commit('UpdateFilter', { name: 'collection_network', value: networkFilters, router: undefined })
+        commit('UpdateFilter', { name: 'biobank_network', value: networkFilters, router: undefined })
       }, error => {
         commit('SetError', error)
       })

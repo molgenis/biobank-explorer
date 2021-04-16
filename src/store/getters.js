@@ -6,6 +6,7 @@ export default {
   filterDefinitions,
   bookmarkMappedToState: state => state.bookmarkMappedToState,
   loading: ({ collectionInfo, biobankIds }) => !(biobankIds && collectionInfo),
+  networksLoading: ({ networksIds, collectionInfo }) => (networksIds === undefined && collectionInfo === undefined),
   biobanks: ({ collectionInfo, biobankIds, biobanks }, { loading, rsql }) => {
     if (loading) {
       return []
@@ -102,7 +103,16 @@ export default {
   /**
    * Get map of active filters
    */
-  activeFilters: state => state.filters.selections,
+  activeFilters: (state, { filterDefinitions }) => {
+    // Select only the filters that are in filterDefinitions
+    // in Network View the network filter is not displayed used to query the biobanks
+    return Object.keys(state.filters.selections)
+      .filter(item => filterDefinitions.map(filter => filter.name).includes(item))
+      .reduce((obj, key) => {
+        obj[key] = state.filters.selections[key]
+        return obj
+      }, {})
+  },
   getErrorMessage: state => {
     if (!state.error) {
       return undefined
@@ -114,5 +124,32 @@ export default {
       return state.error.message
     }
     return 'Something went wrong'
+  },
+  networks: ({ collectionInfo, biobanks, biobankIds, networks, networksIds }, { loading, networksLoading }) => {
+    if (networksLoading || loading) {
+      return []
+    }
+    const collectionsByNetwork = {}
+    collectionInfo.forEach(collection => {
+      collection.networksIds.forEach(networkId => {
+        if (!(networkId in collectionsByNetwork)) {
+          collectionsByNetwork[networkId] = []
+        }
+        collectionsByNetwork[networkId].push(collection)
+      })
+    })
+    return networksIds.map(networkId => {
+      if (!Object.prototype.hasOwnProperty.call(networks, networkId)) {
+        return networkId
+      }
+      const network = networks[networkId]
+      return {
+        ...network,
+        collections: collectionsByNetwork[networkId] || []
+      }
+    })
+  },
+  foundNetworks: ({ networksIds }) => {
+    return networksIds ? networksIds.length : 0
   }
 }
