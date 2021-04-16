@@ -104,10 +104,12 @@ export default {
    * Get map of active filters
    */
   activeFilters: (state, { filterDefinitions }) => {
-    // Select only the filters that are in filterDefinitions
-    // in Network View the network filter is not displayed used to query the biobanks
+    // Select only the filters that are to be displayed in the current view mode
     return Object.keys(state.filters.selections)
-      .filter(item => filterDefinitions.map(filter => filter.name).includes(item))
+      .filter(item => filterDefinitions
+        .filter(filter => filter.viewModes === undefined || filter.viewModes.includes(state.viewMode))
+        .map(filter => filter.name)
+        .includes(item))
       .reduce((obj, key) => {
         obj[key] = state.filters.selections[key]
         return obj
@@ -125,7 +127,7 @@ export default {
     }
     return 'Something went wrong'
   },
-  networks: ({ collectionInfo, biobanks, biobankInfo, networks, networksIds }, { loading, networksLoading }) => {
+  networks: ({ collectionInfo, biobankInfo, networks, networksIds }, { loading, networksLoading }) => {
     if (networksLoading || loading) {
       return []
     }
@@ -163,5 +165,6 @@ export default {
   },
   foundNetworks: ({ networksIds }) => {
     return networksIds ? networksIds.length : 0
-  }
+  },
+  viewMode: ({ viewMode }) => viewMode
 }

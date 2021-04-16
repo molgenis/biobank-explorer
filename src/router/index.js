@@ -35,8 +35,13 @@ export default new VueRouter({
       component: NetworkReportCard
     },
     {
+      path: '/:mode/',
+      component: BiobankExplorerContainer,
+      props: true
+    },
+    {
       path: '/',
-      component: BiobankExplorerContainer
+      redirect: '/biobankview/'
     }
   ]
 })

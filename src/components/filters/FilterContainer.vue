@@ -42,7 +42,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['showCountryFacet', 'activeFilters', 'filterDefinitions', 'bookmarkMappedToState']),
+    ...mapGetters(['showCountryFacet', 'activeFilters', 'filterDefinitions', 'bookmarkMappedToState', 'viewMode']),
     search: {
       get () {
         return this.activeFilters.search
@@ -61,7 +61,8 @@ export default {
     filters () {
       return this.filterDefinitions.filter((facet) => {
         // config option showCountryFacet is used to toggle Country facet
-        return !(this.showCountryFacet === false && facet.name === 'country')
+        return !(this.showCountryFacet === false && facet.name === 'country') &&
+          (facet.viewModes === undefined || facet.viewModes.includes(this.viewMode))
       }).filter((item) => item.component)
     }
   },

@@ -68,19 +68,9 @@ export default {
   computed: {
     ...mapGetters([
       'networks',
-      'biobanks',
       'foundNetworks',
       'networksLoading'
     ]),
-    // biobanksShown () {
-    //   return this.loading ? [] : this.biobanks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
-    // },
-    // biobankIds () {
-    //   return this.loading ? [] : this.biobanks.map(it => it.id || it)
-    // },
-    // biobankIdsToFetch () {
-    //   return this.networksShown.map()
-    // },
     networksShown () {
       return this.networksLoading ? [] : this.networks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
     },
@@ -92,21 +82,10 @@ export default {
     NetworkCard
   },
   watch: {
-    biobankIds (newValue, oldValue) {
-      if (newValue.length !== oldValue.length ||
-        !newValue.every((element, index) => element === oldValue[index])) {
-        this.currentPage = 1
-      }
-    },
     networkIds (newValue, oldValue) {
       if (newValue.length !== oldValue.length ||
         !newValue.every((element, index) => element === oldValue[index])) {
         this.currentPage = 1
-      }
-    },
-    biobankIdsToFetch (value) {
-      if (value.length) {
-        // this.GetBiobanks(value)
       }
     }
   }

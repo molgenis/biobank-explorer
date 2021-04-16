@@ -52,7 +52,7 @@
 
       <div class="row">
         <div class="col-md-12">
-          <network-cards-container v-if="networkView"></network-cards-container>
+          <network-cards-container v-if="mode === 'networkview'"></network-cards-container>
           <biobank-cards-container v-else></biobank-cards-container>
         </div>
       </div>
@@ -174,9 +174,9 @@ import CollectionSelectAll from '@/components/buttons/CollectionSelectAll.vue'
 export default {
   name: 'biobank-explorer-container',
   props: {
-    networkView: {
-      type: Boolean,
-      default: true
+    mode: {
+      type: String,
+      default: 'networkview'
     }
   },
   components: {
@@ -261,7 +261,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['RemoveCollectionsFromSelection', 'MapQueryToState']),
+    ...mapMutations(['RemoveCollectionsFromSelection', 'MapQueryToState', 'SetViewMode']),
     ...mapActions([
       'GetCollectionInfo',
       'GetBiobankIds',
@@ -338,7 +338,8 @@ export default {
     if (this.selectedCollections.length) {
       createBookmark(this.$router, this.activeFilters, this.selectedCollections)
     }
-    if (this.networkView) {
+    this.SetViewMode(this.mode)
+    if (this.mode === 'networkview') {
       this.GetNetworkIds()
     }
   }

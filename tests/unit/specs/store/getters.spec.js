@@ -1,4 +1,5 @@
 import getters from '../../../../src/store/getters'
+import filterDefinitions from '../../../../src/utils/filterDefinitions'
 import { mockSelectedCollections, mockState } from '../mockData'
 
 let state
@@ -199,8 +200,17 @@ describe('store', () => {
           covid19: ['covid19'],
           dataType: ['BIOLOGICAL_SAMPLES', 'GENEALOGICAL_RECORDS']
         }
-
-        const actual = getters.activeFilters(state)
+        const filterDefinitions = [
+          { name: 'materials' },
+          { name: 'country' },
+          { name: 'type' },
+          { name: 'covid19' },
+          { name: 'dataType' },
+          { name: 'collection_quality' },
+          { name: 'biobank_quality' },
+          { name: 'search' }
+        ]
+        const actual = getters.activeFilters(state, { filterDefinitions: filterDefinitions })
         const expected = {
           materials: ['PLASMA'],
           country: ['AT'],
@@ -219,8 +229,28 @@ describe('store', () => {
         const expected = {
           diagnosis_available: ['urn:miriam:icd:C00-C97']
         }
+        const filterDefinitions = [
+          { name: 'diagnosis_available' }
+        ]
         state.filters.selections = expected
-        const actual = getters.activeFilters(state)
+        const actual = getters.activeFilters(state, { filterDefinitions: filterDefinitions })
+        expect(actual).toStrictEqual(expected)
+      })
+      it('should retrieve an object of filters without the filters not defined in filterDefinitions', () => {
+        const expected = {
+          materials: ['PLASMA']
+        }
+        const stateFilters = {
+          materials: ['PLASMA'],
+          biobank_network: ['COVID-19']
+        }
+        const filterDefinitions = [
+          { name: 'materials' },
+          { name: 'biobank_network', viewModes: ['biobankview'] }
+        ]
+        state.filters.selections = stateFilters
+        state.viewMode = 'networkview'
+        const actual = getters.activeFilters(state, { filterDefinitions: filterDefinitions })
         expect(actual).toStrictEqual(expected)
       })
     })
