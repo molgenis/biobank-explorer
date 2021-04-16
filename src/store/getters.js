@@ -125,19 +125,30 @@ export default {
     }
     return 'Something went wrong'
   },
-  networks: ({ collectionInfo, biobanks, biobankIds, networks, networksIds }, { loading, networksLoading }) => {
+  networks: ({ collectionInfo, biobanks, biobankInfo, networks, networksIds }, { loading, networksLoading }) => {
     if (networksLoading || loading) {
       return []
     }
     const collectionsByNetwork = {}
     collectionInfo.forEach(collection => {
-      collection.networksIds.forEach(networkId => {
+      collection.networkIds.forEach(networkId => {
         if (!(networkId in collectionsByNetwork)) {
           collectionsByNetwork[networkId] = []
         }
         collectionsByNetwork[networkId].push(collection)
       })
     })
+
+    const biobanksByNetwork = {}
+    biobankInfo.forEach(biobank => {
+      biobank.networkIds.forEach(networkId => {
+        if (!(networkId in biobanksByNetwork)) {
+          biobanksByNetwork[networkId] = []
+        }
+        biobanksByNetwork[networkId].push(biobank)
+      })
+    })
+
     return networksIds.map(networkId => {
       if (!Object.prototype.hasOwnProperty.call(networks, networkId)) {
         return networkId
@@ -145,7 +156,8 @@ export default {
       const network = networks[networkId]
       return {
         ...network,
-        collections: collectionsByNetwork[networkId] || []
+        collections: collectionsByNetwork[networkId] || [],
+        biobanks: biobanksByNetwork[networkId] || []
       }
     })
   },

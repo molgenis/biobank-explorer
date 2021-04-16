@@ -86,9 +86,6 @@ export default {
     },
     networksIds () {
       return this.networksLoading ? [] : this.networks.map(it => it.id || it)
-    },
-    networksIdsToFetch () {
-      return this.networksShown.filter(it => typeof it === 'string')
     }
   },
   components: {

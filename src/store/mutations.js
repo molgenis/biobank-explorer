@@ -79,6 +79,17 @@ export default {
   SetBiobankIds (state, biobankIds) {
     state.biobankIds = biobankIds
   },
+  SetBiobankInfo (state, response) {
+    if (response === undefined) {
+      state.biobankInfo = response
+      return
+    }
+    state.biobankInfo = response.items.map(item => ({
+      id: item.data.id,
+      name: item.data.name,
+      networkIds: item.data.network.items.map(item => item.data.id)
+    }))
+  },
   // TODO name more specifically
   SetDictionaries (state, response) {
     const collections = response.items.map(item => (
@@ -129,7 +140,7 @@ export default {
       collectionId: item.data.id,
       collectionName: item.data.label || item.data.name,
       biobankId: item.data.biobank.data.id,
-      networksIds: item.data.network.items.map(item => item.data.id),
+      networkIds: item.data.network.items.map(item => item.data.id),
       isSubcollection: item.data.parent_collection !== undefined
     }))
     state.collectionInfo = collectionInfo

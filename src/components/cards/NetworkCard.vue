@@ -36,6 +36,13 @@
             <small>{{ network.collections.length }}</small>
             <br />
           </p>
+          <p>
+            <small class="mr-2">
+              <span class="font-weight-bold">Number of biobanks:</span>
+            </small>
+            <small>{{ network.biobanks.length }}</small>
+            <br />
+          </p>
         </div>
         <div v-else class="col-md-12 text-center">
           <span class="fa fa-spinner fa-spin" aria-hidden="true"></span>
@@ -46,6 +53,7 @@
       <network-children-table
         v-if="network.collections.length > 0"
         :collections="network.collections"
+        :biobanks="network.biobanks"
       ></network-children-table>
     </div>
   </div>
@@ -86,48 +94,9 @@ export default {
   computed: {
     ...mapState(['qualityStandardsDictionary']),
     ...mapGetters(['selectedCollections']),
-    // biobankInSelection () {
-    //   if (!this.biobank.collections) return false
-
-    //   const biobankCollectionSelection = this.biobank.collections
-    //     .filter((bcf) => !bcf.parent_collection)
-    //     .map((bc) => ({ label: bc.label || bc.name, value: bc.id }))
-    //   return this.selectedCollections
-    //     .map((sc) => sc.value)
-    //     .some((id) =>
-    //       biobankCollectionSelection.map((pc) => pc.value).includes(id)
-    //     )
-    // },
-    // sortedCollections () {
-    //   return sortCollectionsByName(this.biobank.collections)
-    // },
     loading () {
       return typeof this.network === 'string'
-    // },
-    // collectionTypes () {
-    //   const getSubCollections = (collection) => [
-    //     collection,
-    //     ...collection.sub_collections.flatMap(getSubCollections)
-    //   ]
-    //   const types = this.biobank.collections
-    //     .flatMap(getSubCollections)
-    //     .flatMap((collection) => collection.type)
-    //     .map((type) => type.label)
-    //   return utils.getUniqueIdArray(types).join(', ')
-    // },
-    // availableCovidTypes () {
-    //   if (
-    //     this.biobank.covid19biobank &&
-    //     this.biobank.covid19biobank.length > 0
-    //   ) {
-    //     return this.biobank.covid19biobank
-    //       .map((covidItem) => covidItem.label || covidItem.name)
-    //       .join(', ')
-    //   } else return ''
     }
-  },
-  mounted () {
-    // console.log(this.network)
   }
 }
 </script>

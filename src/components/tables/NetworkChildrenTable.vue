@@ -1,20 +1,36 @@
 <template>
-  <div>
-  <div class="table-title">Collections</div>
-  <b-table sticky-header :fields="fields" :items="collections" class="table table-condensed table-responsive">
-    <template #cell(collectionName)="data">
-      <span>
-        <router-link :to="'/collection/' + data.item.collectionId">
-          <button
-            class="btn btn-link collection-link text-left pt-0 border-0"
-          >
-            {{ data.value }}
-          </button>
-        </router-link>
-      </span>
-    </template>
-  </b-table>
-  </div>
+  <b-tabs content-class="mt-2">
+    <b-tab title="Collections">
+      <b-table sticky-header :fields="fields" :items="collections" class="table table-condensed table-responsive">
+        <template #cell(collectionName)="data">
+          <span>
+            <router-link :to="'/collection/' + data.item.collectionId">
+              <button
+                class="btn btn-link collection-link text-left pt-0 border-0"
+              >
+                {{ data.value }}
+              </button>
+            </router-link>
+          </span>
+        </template>
+      </b-table>
+    </b-tab>
+    <b-tab title="Biobanks">
+      <b-table sticky-header :fields="biobankFields" :items="biobanks" class="table table-condensed table-responsive">
+        <template #cell(name)="data">
+          <span>
+            <router-link :to="'/biobank/' + data.item.id">
+              <button
+                class="btn btn-link collection-link text-left pt-0 border-0"
+              >
+                {{ data.value }}
+              </button>
+            </router-link>
+          </span>
+        </template>
+      </b-table>
+    </b-tab>
+  </b-tabs>
 </template>
 
 <script>
@@ -34,6 +50,10 @@ export default {
     return {
       fields: [{
         key: 'collectionName',
+        label: 'Name'
+      }],
+      biobankFields: [{
+        key: 'name',
         label: 'Name'
       }]
     }

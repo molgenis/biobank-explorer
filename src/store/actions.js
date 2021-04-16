@@ -95,13 +95,15 @@ export default {
   },
   GetBiobankIds ({ commit, getters }) {
     commit('SetBiobankIds', undefined)
-    let url = '/api/data/eu_bbmri_eric_biobanks?filter=id,network(id,name)&expand=network&size=10000&sort=name'
+    commit('SetBiobankInfo', undefined)
+    let url = '/api/data/eu_bbmri_eric_biobanks?filter=id,name,network(id,name)&expand=network&size=10000&sort=name'
     if (getters.biobankRsql) {
       url = `${url}&q=${encodeRsqlValue(getters.biobankRsql)}`
     }
     api.get(url)
       .then(response => {
         commit('SetBiobankIds', response.items.map(item => item.data.id))
+        commit('SetBiobankInfo', response)
       }, error => {
         commit('SetError', error)
       })

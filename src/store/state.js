@@ -15,6 +15,7 @@ export default {
   biobanks: {},
   // IDs of biobanks matching the biobank filters
   biobankIds: undefined,
+  biobankInfo: undefined,
   // IDs of networks matching the network filters
   networks: {},
   networksIds: undefined,
