@@ -1,6 +1,6 @@
 <template>
   <div class="biobank-cards-container">
-    <div v-if="!networksLoading && foundNetworks > 0">
+    <div v-if="!networksLoading && !loading && foundNetworks > 0">
       <b-pagination
         v-if="foundNetworks > pageSize"
         size="md"
@@ -69,7 +69,8 @@ export default {
     ...mapGetters([
       'networks',
       'foundNetworks',
-      'networksLoading'
+      'networksLoading',
+      'loading'
     ]),
     networksShown () {
       return this.networksLoading ? [] : this.networks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
