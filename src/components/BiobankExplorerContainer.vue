@@ -265,7 +265,7 @@ export default {
     ...mapActions([
       'GetCollectionInfo',
       'GetBiobankIds',
-      'GetNetworkIds',
+      'GetNetworkInfo',
       'GetPodiumCollections',
       'GetBiobankIdsForQuality',
       'GetCollectionIdsForQuality'
@@ -340,7 +340,7 @@ export default {
     }
     this.SetViewMode(this.mode)
     if (this.mode === 'networkview') {
-      this.GetNetworkIds()
+      this.GetNetworkInfo()
     }
   }
 }

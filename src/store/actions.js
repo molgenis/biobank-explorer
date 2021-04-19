@@ -108,12 +108,9 @@ export default {
         commit('SetError', error)
       })
   },
-  GetNetworkIds ({ commit, getters }) {
+  GetNetworkInfo ({ commit, getters }) {
     commit('SetNetworksIds', undefined)
-    let url = '/api/data/eu_bbmri_eric_networks?filter=id,name&size=10000&sort=name'
-    if (getters.networkRsql) {
-      url = `${url}&q=${encodeRsqlValue(getters.networkRsql)}`
-    }
+    const url = '/api/data/eu_bbmri_eric_networks?filter=id,name&size=10000&sort=name'
     api.get(url)
       .then(response => {
         const networks = response.items.map(item => item.data)
