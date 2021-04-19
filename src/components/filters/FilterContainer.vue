@@ -69,7 +69,7 @@ export default {
   methods: {
     ...mapMutations(['UpdateFilter']),
     filterChange (name, value) {
-      this.UpdateFilter({ name, value, router: this.$router })
+      this.UpdateFilter({ name, value, filterDefinitions: this.filterDefinitions, router: this.$router })
     }
   }
 }

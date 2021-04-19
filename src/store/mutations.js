@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { createBookmark } from '../utils/bookmarkMapper'
-import { fixCollectionTree } from './helpers'
+import { fixCollectionTree, getActiveFilters } from './helpers'
 import filterDefinitions from '../utils/filterDefinitions'
 
 const negotiatorConfigIds = ['directory', 'bbmri-eric-model']
@@ -31,7 +31,7 @@ export default {
    * @param name name of the state entry e.g. country, materials, standards, or diagnosis_available
    * @param filters an array of values
    */
-  UpdateFilter (state, { name, value, router }) {
+  UpdateFilter (state, { name, value, filterDefinitions, router }) {
     if (name === 'search') {
       Vue.set(state.filters.selections, name, value)
       createBookmark(router, state.filters.selections, state.selectedCollections)
@@ -49,7 +49,7 @@ export default {
     Vue.set(state.filters.selections, name, [...new Set(filterValues)])
     Vue.set(state.filters.labels, name, [...new Set(filterTexts)])
     if (router !== undefined) {
-      createBookmark(router, state.filters.selections, state.selectedCollections)
+      createBookmark(router, getActiveFilters(state, filterDefinitions), state.selectedCollections)
     }
   },
   UpdateAllFilters (state, selections) {

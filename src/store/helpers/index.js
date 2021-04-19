@@ -119,6 +119,19 @@ export const filterCollectionTree = (collectionIds, collections) =>
       return accumulator
     }, [])
 
+export const getActiveFilters = (state, filterDefinitions) => {
+  // Select only the filters that are to be displayed in the current view mode
+  return Object.keys(state.filters.selections)
+    .filter(item => filterDefinitions
+      .filter(filter => filter.viewModes === undefined || filter.viewModes.includes(state.viewMode))
+      .map(filter => filter.name)
+      .includes(item))
+    .reduce((obj, key) => {
+      obj[key] = state.filters.selections[key]
+      return obj
+    }, {})
+}
+
 export default {
   createRSQLQuery,
   createNegotiatorQueryBody,
