@@ -1,12 +1,13 @@
 /* istanbul ignore file */
-import { genericFilterOptions, diagnosisAvailableFilterOptions, collaborationTypeFilterOptions } from './filterOptions'
+import { genericFilterOptions, diagnosisAvailableFilterOptions, collaborationTypeFilterOptions, commonNetworkFilterOptions } from './filterOptions'
 
 const filterDefinitions = (state) => [
   {
     name: 'search',
     label: 'Search',
     type: 'string-filter',
-    humanReadableString: 'Text search is'
+    humanReadableString: 'Text search is',
+    viewModes: ['biobankview']
   },
   {
     headerClass: 'bg-warning text-white',
@@ -28,7 +29,8 @@ const filterDefinitions = (state) => [
     filters: state.filters.selections.covid19,
     all: true,
     maxVisibleOptions: 25,
-    humanReadableString: 'Covid-19 service(s):'
+    humanReadableString: 'Covid-19 service(s):',
+    viewModes: ['biobankview']
   },
   {
     component: 'MultiFilter',
@@ -40,7 +42,8 @@ const filterDefinitions = (state) => [
     table: 'eu_bbmri_eric_disease_types',
     options: diagnosisAvailableFilterOptions('eu_bbmri_eric_disease_types'),
     initiallyCollapsed: !state.route.query.diagnosis_available,
-    humanReadableString: 'Disease type(s):'
+    humanReadableString: 'Disease type(s):',
+    viewModes: ['biobankview']
   },
   {
     component: 'CheckboxFilter',
@@ -52,7 +55,8 @@ const filterDefinitions = (state) => [
     initiallyCollapsed: !state.route.query.materials,
     filters: state.filters.selections.materials,
     maxVisibleOptions: 25,
-    humanReadableString: 'Material type(s):'
+    humanReadableString: 'Material type(s):',
+    viewModes: ['biobankview']
   },
   {
     component: 'CheckboxFilter',
@@ -64,7 +68,8 @@ const filterDefinitions = (state) => [
     initiallyCollapsed: !state.route.query.country,
     filters: state.filters.selections.country,
     maxVisibleOptions: 25,
-    humanReadableString: 'Countries:'
+    humanReadableString: 'Countries:',
+    viewModes: ['biobankview']
   },
   {
     component: 'CheckboxFilter',
@@ -76,7 +81,8 @@ const filterDefinitions = (state) => [
     initiallyCollapsed: !state.route.query.biobank_quality,
     filters: state.filters.selections.biobank_quality,
     maxVisibleOptions: 25,
-    humanReadableString: 'Biobank quality mark(s):'
+    humanReadableString: 'Biobank quality mark(s):',
+    viewModes: ['biobankview']
   },
   {
     component: 'CheckboxFilter',
@@ -88,7 +94,8 @@ const filterDefinitions = (state) => [
     initiallyCollapsed: !state.route.query.collection_quality,
     filters: state.filters.selections.collection_quality,
     maxVisibleOptions: 25,
-    humanReadableString: 'Collection quality mark(s):'
+    humanReadableString: 'Collection quality mark(s):',
+    viewModes: ['biobankview']
   },
   {
     component: 'CheckboxFilter',
@@ -100,7 +107,8 @@ const filterDefinitions = (state) => [
     initiallyCollapsed: !state.route.query.type,
     filters: state.filters.selections.type,
     maxVisibleOptions: 25,
-    humanReadableString: 'Collection type(s):'
+    humanReadableString: 'Collection type(s):',
+    viewModes: ['biobankview']
   },
   {
     component: 'CheckboxFilter',
@@ -111,7 +119,8 @@ const filterDefinitions = (state) => [
     initiallyCollapsed: !state.route.query.collaboration_type,
     filters: state.filters.selections.collaboration_type,
     maxVisibleOptions: 25,
-    humanReadableString: 'Biobank collaboration type(s):'
+    humanReadableString: 'Biobank collaboration type(s):',
+    viewModes: ['biobankview']
   },
   {
     component: 'CheckboxFilter',
@@ -149,7 +158,20 @@ const filterDefinitions = (state) => [
     initiallyCollapsed: !state.route.query.dataType,
     filters: state.filters.selections.dataType,
     maxVisibleOptions: 25,
-    humanReadableString: 'Data type(s):'
+    humanReadableString: 'Data type(s):',
+    viewModes: ['biobankview']
+  },
+  {
+    component: 'CheckboxFilter',
+    name: 'network_common_properties',
+    label: 'Common Properties',
+    type: 'checkbox-filter',
+    options: commonNetworkFilterOptions(),
+    initiallyCollapsed: false,
+    filters: state.filters.selections.network_common_properties,
+    maxVisibleOptions: 25,
+    humanReadableString: 'Common Properties',
+    viewModes: ['networkview']
   }
 ]
 

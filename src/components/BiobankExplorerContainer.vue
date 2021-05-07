@@ -197,6 +197,7 @@ export default {
     ...mapGetters([
       'rsql',
       'biobankRsql',
+      'networkRsql',
       'loading',
       'foundCollectionIds',
       'activeFilters',
@@ -254,6 +255,10 @@ export default {
     biobankRsql: {
       immediate: true,
       handler: 'GetBiobankIds'
+    },
+    networkRsql: {
+      immediate: true,
+      handler: 'GetNetworkInfo'
     },
     isPodium: {
       immediate: true,
@@ -339,9 +344,9 @@ export default {
       createBookmark(this.$router, this.activeFilters, this.selectedCollections)
     }
     this.SetViewMode(this.mode)
-    if (this.mode === 'networkview') {
-      this.GetNetworkInfo()
-    }
+    // if (this.mode === 'networkview') {
+    //   this.GetNetworkInfo()
+    // }
   }
 }
 </script>

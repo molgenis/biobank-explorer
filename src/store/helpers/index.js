@@ -41,6 +41,25 @@ export const createBiobankRSQLQuery = (state) => transformToRSQL({
   ])
 })
 
+/**
+ * @example queries
+ * q=country.id=in=(NL,BE)
+ * q=materials.id=in=(RNA,DNA)
+ * q=diagnosis_available.code=in=(C18,L40)
+ * q=standards.id=in=(cen-ts-16835-1-2015,cen-ts-16827-1-2015)
+ */
+export const createNetworkRSQLQuery = (state) => {
+  console.log(state.filters.selections.network_common_properties)
+  return transformToRSQL({
+    operator: 'AND',
+    operands: flatten(
+      state.filters.selections.network_common_properties
+        ? state.filters.selections.network_common_properties.map((property) => createComparisons(property, [true]))
+        : []
+    )
+  })
+}
+
 const createNegotiatorQueryBody = async (state, getters, url) => {
   const result = {
     /* Remove the nToken from the URL to prevent duplication on the negotiator side when a query is edited more than once */

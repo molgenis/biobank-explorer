@@ -1,4 +1,4 @@
-import { createRSQLQuery, createBiobankRSQLQuery, filterCollectionTree, getActiveFilters } from './helpers'
+import { createRSQLQuery, createBiobankRSQLQuery, createNetworkRSQLQuery, filterCollectionTree, getActiveFilters } from './helpers'
 import { groupCollectionsByBiobankId, groupBiobanksByNetworkId } from '../utils/grouping'
 import filterDefinitions from '../utils/filterDefinitions'
 
@@ -98,6 +98,7 @@ export default {
   },
   rsql: createRSQLQuery,
   biobankRsql: createBiobankRSQLQuery,
+  networkRsql: createNetworkRSQLQuery,
   resetPage: state => !state.isPaginating,
   showCountryFacet: state => state.showCountryFacet,
   /**
