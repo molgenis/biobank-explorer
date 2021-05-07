@@ -1,11 +1,11 @@
 <template>
   <div class="biobank-cards-container">
-    <div v-if="!loading && foundBiobanks > 0">
+    <div v-if="!loading && numberOfBiobanks > 0">
       <b-pagination
-        v-if="foundBiobanks > pageSize"
+        v-if="numberOfBiobanks > pageSize"
         size="md"
         align="center"
-        :total-rows="foundBiobanks"
+        :total-rows="numberOfBiobanks"
         v-model="currentPage"
         :per-page="pageSize"
       ></b-pagination>
@@ -13,20 +13,20 @@
         v-for="biobank in biobanksShown"
         :key="biobank.id || biobank"
         :biobank="biobank"
-        :initCollapsed="(biobanksShown[0].id !== biobank.id || biobanksShown[0] !== biobank)">
+        :initCollapsed="true">
       </biobank-card>
 
       <b-pagination
-        v-if="foundBiobanks > pageSize"
+        v-if="numberOfBiobanks > pageSize"
         size="md"
         align="center"
-        :total-rows="foundBiobanks"
+        :total-rows="numberOfBiobanks"
         v-model="currentPage"
         :per-page="pageSize"
       ></b-pagination>
     </div>
 
-    <div v-else-if="!loading && foundBiobanks === 0" class="status-text">
+    <div v-else-if="!loading && numberOfBiobanks === 0" class="status-text">
       <h4>No biobanks were found</h4>
     </div>
 
@@ -59,27 +59,37 @@ export default {
   name: 'biobank-cards-container',
   data () {
     return {
-      currentPage: 1,
+      currentPage: 0,
       pageSize: 10
+    }
+  },
+  props: {
+    biobanks: {
+      type: [Array]
     }
   },
   methods: {
     ...mapActions(['GetBiobanks'])
   },
   computed: {
-    ...mapGetters([
-      'biobanks',
-      'foundBiobanks',
-      'loading'
-    ]),
+    ...mapGetters({
+      globalBiobanks: 'biobanks',
+      foundBiobanks: 'foundBiobanks',
+      loading: 'loading'
+    }),
     biobanksShown () {
-      return this.loading ? [] : this.biobanks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
+      const biobanks = this.$props.biobanks ? this.$props.biobanks : this.globalBiobanks
+      return this.loading ? [] : biobanks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
     },
     biobankIds () {
-      return this.loading ? [] : this.biobanks.map(it => it.id || it)
+      const biobanks = this.$props.biobanks ? this.$props.biobanks : this.globalBiobanks
+      return this.loading ? [] : biobanks.map(it => it.id || it)
     },
     biobankIdsToFetch () {
       return this.biobanksShown.filter(it => typeof it === 'string')
+    },
+    numberOfBiobanks () {
+      return this.$props.biobanks ? this.$props.biobanks.length : this.foundBiobanks
     }
   },
   components: {
@@ -87,16 +97,24 @@ export default {
   },
   watch: {
     biobankIds (newValue, oldValue) {
+      console.log(newValue)
+      console.log(oldValue)
       if (newValue.length !== oldValue.length ||
         !newValue.every((element, index) => element === oldValue[index])) {
         this.currentPage = 1
       }
     },
     biobankIdsToFetch (value) {
-      if (value.length) {
+      console.log('Ids to fetch changed')
+      console.log(value.length)
+      if (value.length > 0) {
         this.GetBiobanks(value)
       }
     }
+  },
+  mounted () {
+    console.log(this.biobankIds)
+    this.currentPage = 1
   }
 }
 </script>

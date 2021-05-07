@@ -85,8 +85,8 @@ describe('store', () => {
         const commit = jest.fn()
 
         await actions.GetBiobankIds({ commit, getters })
-        expect(commit.mock.calls[1]).toEqual(['SetBiobankIds', ['biobank-1', 'biobank-2']])
-        expect(commit.mock.calls[2]).toEqual(['SetBiobankInfo', response])
+        expect(commit.mock.calls[2]).toEqual(['SetBiobankIds', ['biobank-1', 'biobank-2']])
+        expect(commit.mock.calls[3]).toEqual(['SetBiobankInfo', response])
       })
     })
 

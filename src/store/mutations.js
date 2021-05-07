@@ -84,11 +84,19 @@ export default {
       state.biobankInfo = response
       return
     }
-    state.biobankInfo = response.items.map(item => ({
-      id: item.data.id,
-      name: item.data.name,
-      networkIds: item.data.network.items.map(item => item.data.id)
-    }))
+    state.biobankInfo = {}
+    response.items.forEach(item => (
+      state.biobankInfo[item.data.id] = {
+        id: item.data.id,
+        name: item.data.name,
+        networkIds: item.data.network.items.map(item => item.data.id)
+      }))
+
+    // state.biobankInfo = response.items.map(item => ({
+    //   id: item.data.id,
+    //   name: item.data.name,
+    //   networkIds: item.data.network.items.map(item => item.data.id)
+    // }))
   },
   // TODO name more specifically
   SetDictionaries (state, response) {

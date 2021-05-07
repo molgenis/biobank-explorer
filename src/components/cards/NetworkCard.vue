@@ -3,8 +3,8 @@
     :class="['card network-card']"
   >
     <div
-      class="card-header network-card-header"
-      @click.prevent="collapsed = !collapsed"
+      class="card-header network-card-header bg-info"
+      @click="openCard"
     >
       <div class="row">
         <div class="col-md-5 d-flex flex-column" v-if="!loading">
@@ -31,13 +31,6 @@
         <div class="col-md-6" v-if="!loading">
           <p>
             <small class="mr-2">
-              <span class="font-weight-bold">Number of collections:</span>
-            </small>
-            <small>{{ network.collections.length }}</small>
-            <br />
-          </p>
-          <p>
-            <small class="mr-2">
               <span class="font-weight-bold">Number of biobanks:</span>
             </small>
             <small>{{ network.biobanks.length }}</small>
@@ -50,28 +43,32 @@
       </div>
     </div>
     <div class="card-body table-card" v-if="!collapsed && !loading">
-      <network-children-table
-        v-if="network.collections.length > 0"
-        :collections="network.collections"
+      <biobank-cards-container
+        :biobanks="network.biobanks">
+      </biobank-cards-container>
+      <!-- <network-children-table
+        v-if="network.biobanks.length > 0"
         :biobanks="network.biobanks"
-      ></network-children-table>
+      ></network-children-table> -->
     </div>
   </div>
 </template>
 
 <script>
 // import CollectionSelector from '@/components/buttons/CollectionSelector'
-import NetworkChildrenTable from '../tables/NetworkChildrenTable.vue'
-import { mapGetters, mapState } from 'vuex'
+// import NetworkChildrenTable from '../tables/NetworkChildrenTable.vue'
+import { mapActions, mapGetters, mapState } from 'vuex'
 // import utils from '../../utils'
 // import { sortCollectionsByName } from '../../utils/sorting'
 // import QualityColumn from '../tables/QualityColumn'
 import 'array-flat-polyfill'
+import BiobankCardsContainer from './BiobankCardsContainer.vue'
 
 export default {
   name: 'network-card',
   components: {
-    NetworkChildrenTable
+    // NetworkChildrenTable,
+    BiobankCardsContainer
     // QualityColumn,
     // CollectionSelector
   },
@@ -96,6 +93,14 @@ export default {
     ...mapGetters(['selectedCollections']),
     loading () {
       return typeof this.network === 'string'
+    }
+  },
+  methods: {
+    ...mapActions(['GetNetworkReport']),
+    openCard (event) {
+      event.preventDefault()
+      this.collapsed = !this.collapsed
+      // this.GetNetworkReport(this.network.id)
     }
   }
 }
