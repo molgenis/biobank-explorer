@@ -26,11 +26,13 @@ export default {
       // first occurrence of ID only
         .filter((value, index, self) => self.indexOf(value) === index)
     }
-    // // Some filters are applied also to biobanks (i.e., country) so we should insert also biobanks not included in collectionInfo
-    // if (biobankRsql && biobankRsql.length) {
-    //   console.log(biobankIds.filter(biobankId => !ids.includes(biobankId)))
-    //   ids.push(...biobankIds.filter(biobankId => !ids.includes(biobankId)))
-    // }
+    // Some filters are applied also to biobanks (i.e., network)
+    // In this cases we should insert also collections of those biobanks not included in collectionInfo
+    let biobankIdsToForce = []
+    if (biobankRsql && biobankRsql.length) {
+      biobankIdsToForce = biobankIds.filter(biobankId => !ids.includes(biobankId))
+      ids.push(...biobankIdsToForce)
+    }
     return ids.map(biobankId => {
       if (!Object.prototype.hasOwnProperty.call(biobanks, biobankId)) {
         return biobankId
@@ -38,7 +40,9 @@ export default {
       const biobank = biobanks[biobankId]
       return {
         ...biobank,
-        collections: filterCollectionTree(collectionInfo.map(it => it.collectionId), biobank.collections)
+        collections: biobankIdsToForce.includes(biobankId)
+          ? [...biobank.collections] // create a copy
+          : filterCollectionTree(collectionInfo.map(it => it.collectionId), biobank.collections)
       }
     })
   },

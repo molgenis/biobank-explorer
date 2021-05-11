@@ -111,7 +111,7 @@ export default {
   },
   mounted () {
     // If in networkview, the firts set of biobanksIds it is not fetched. This will force it
-    if (this.viewMode === 'networkview') {
+    if (this.viewMode === 'networkview' && this.biobankIdsToFetch.length > 0) {
       this.GetBiobanks(this.biobankIdsToFetch)
     }
   }
