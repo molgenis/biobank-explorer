@@ -1,4 +1,4 @@
-import { shallowMount, mount, createLocalVue } from '@vue/test-utils'
+import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
 import BiobankExplorerContainer from '@/components/BiobankExplorerContainer'
 import BootstrapVue from 'bootstrap-vue'
@@ -18,7 +18,7 @@ describe('BiobankExplorerContainer', () => {
     { collectionId: 'C', biobankId: 'B', collectionName: 'Collection C' }, { collectionId: 'D', biobankId: 'E', collectionName: 'Collection D' }]
 
   const rsqlMock = jest.fn().mockReturnValue('')
-  // const networkRsqlMock = jest.fn().mockReturnValue('')
+  const networkRsqlMock = jest.fn().mockReturnValue('')
   const podiumCollectionsMock = jest.fn().mockReturnValue([])
   const selectedCollectionMock = jest.fn().mockReturnValue([])
   const foundCollectionsAsSelectionMock = jest.fn()
@@ -35,6 +35,7 @@ describe('BiobankExplorerContainer', () => {
       state: mockState(),
       getters: {
         rsql: rsqlMock,
+        networkRsql: networkRsqlMock,
         activeFilters: () => {},
         biobankRsql: () => '',
         selectedBiobankQuality: () => [],
