@@ -1,6 +1,6 @@
 <template>
-  <div class="biobank-cards-container">
-    <div v-if="!networksLoading && !loading && foundNetworks > 0">
+  <div class="network-cards-container">
+    <div v-if="!loading && foundNetworks > 0">
       <b-pagination
         v-if="foundNetworks > pageSize"
         size="md"
@@ -25,8 +25,8 @@
       ></b-pagination>
     </div>
 
-    <div v-else-if="!networksLoading && foundNetworks === 0" class="status-text">
-      <h4>No biobanks were found</h4>
+    <div v-else-if="!loading && foundNetworks === 0" class="status-text">
+      <h4>No networks were found</h4>
     </div>
 
     <div v-else class="status-text">
@@ -45,14 +45,14 @@
   padding: 1rem;
 }
 
-.biobank-cards-container {
+.network-cards-container {
   width: 100%;
 }
 </style>
 
 <script>
 import NetworkCard from './NetworkCard'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'network-cards-container',
@@ -62,21 +62,17 @@ export default {
       pageSize: 5
     }
   },
-  methods: {
-    ...mapActions(['GetBiobanks'])
-  },
   computed: {
     ...mapGetters([
       'networks',
       'foundNetworks',
-      'networksLoading',
       'loading'
     ]),
     networksShown () {
-      return this.networksLoading ? [] : this.networks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
+      return this.loading ? [] : this.networks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
     },
-    networksIds () {
-      return this.networksLoading ? [] : this.networks.map(it => it.id || it)
+    networkIds () {
+      return this.loading ? [] : this.networks.map(it => it.id || it)
     }
   },
   components: {

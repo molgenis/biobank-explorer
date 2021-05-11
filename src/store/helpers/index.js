@@ -43,22 +43,16 @@ export const createBiobankRSQLQuery = (state) => transformToRSQL({
 
 /**
  * @example queries
- * q=country.id=in=(NL,BE)
- * q=materials.id=in=(RNA,DNA)
- * q=diagnosis_available.code=in=(C18,L40)
- * q=standards.id=in=(cen-ts-16835-1-2015,cen-ts-16827-1-2015)
+ * q=common_sops==true
  */
-export const createNetworkRSQLQuery = (state) => {
-  console.log(state.filters.selections.network_common_properties)
-  return transformToRSQL({
-    operator: 'AND',
-    operands: flatten(
-      state.filters.selections.network_common_properties
-        ? state.filters.selections.network_common_properties.map((property) => createComparisons(property, [true]))
-        : []
-    )
-  })
-}
+export const createNetworkRSQLQuery = (state) => transformToRSQL({
+  operator: 'AND',
+  operands: flatten(
+    state.filters.selections.network_common_properties
+      ? state.filters.selections.network_common_properties.map((property) => createComparisons(property, [true]))
+      : []
+  )
+})
 
 const createNegotiatorQueryBody = async (state, getters, url) => {
   const result = {
@@ -139,10 +133,9 @@ export const filterCollectionTree = (collectionIds, collections) =>
     }, [])
 
 export const getActiveFilters = (state, filterDefinitions) => {
-  // Select only the filters that are to be displayed in the current view mode
+  // Select only the filters that have to be displayed in the current view mode
   return Object.keys(state.filters.selections)
     .filter(item => filterDefinitions
-      .filter(filter => filter.viewModes === undefined || filter.viewModes.includes(state.viewMode))
       .map(filter => filter.name)
       .includes(item))
     .reduce((obj, key) => {

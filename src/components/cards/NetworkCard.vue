@@ -3,7 +3,7 @@
     :class="['card network-card']"
   >
     <div
-      class="card-header network-card-header bg-info"
+      class="card-header network-card-header bg-warning"
       @click="openCard"
     >
       <div class="row">
@@ -12,7 +12,7 @@
             <h5>
               <router-link :to="'/network/' +  network.id">
                 <span
-                  class="fa fa-table mr-2 icon-alignment"
+                  class="fa fa-table network-icon mr-2 icon-alignment"
                   aria-hidden="true"
                   aria-labelledby="network-name"
                 ></span>
@@ -42,7 +42,7 @@
         </div>
       </div>
     </div>
-    <div class="card-body table-card" v-if="!collapsed && !loading">
+    <div class="card-body network-table-card" v-if="!collapsed && !loading">
       <biobank-cards-container
         :biobanks="network.biobanks">
       </biobank-cards-container>
@@ -107,8 +107,9 @@ export default {
 </script>
 
 <style>
-.table-card {
-  padding: 0.1rem;
+.network-table-card {
+  padding: 1rem;
+  /* max-height: 200px; */
 }
 .align-with-table {
   margin-left: 0.1rem;
@@ -134,6 +135,11 @@ export default {
   cursor: pointer;
   background-color: #e4e4e4;
 }
+
+.network-icon {
+  color: white;
+}
+
 .network-icon:hover {
   cursor: pointer;
 }

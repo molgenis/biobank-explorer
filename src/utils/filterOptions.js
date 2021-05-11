@@ -50,7 +50,6 @@ export const commonNetworkFilterOptions = () => {
   return () => new Promise((resolve) => {
     resolve([
       { text: 'Common SOP', value: 'common_sops' },
-      { text: 'Common Data Access Policy', value: 'common_data_access_policy' },
       { text: 'Common Collection Focus', value: 'common_collection_focus' },
       { text: 'Common Charter', value: 'common_charter' },
       { text: 'Common Data Access Policy', value: 'common_data_access_policy' },

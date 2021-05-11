@@ -5,9 +5,14 @@ import filterDefinitions from '../utils/filterDefinitions'
 export default {
   filterDefinitions,
   bookmarkMappedToState: state => state.bookmarkMappedToState,
-  loading: ({ collectionInfo, biobankIds }) => !(biobankIds && collectionInfo),
-  networksLoading: ({ networksIds, collectionInfo }) => (networksIds === undefined && collectionInfo === undefined),
-  biobanks: ({ collectionInfo, biobankIds, biobanks }, { loading, rsql }) => {
+  loading: ({ viewMode, collectionInfo, biobankIds, networkIds }) => {
+    if (viewMode === 'biobankview') {
+      return !(biobankIds && collectionInfo)
+    } else {
+      return !(networkIds && biobankIds && collectionInfo)
+    }
+  },
+  biobanks: ({ collectionInfo, biobankIds, biobanks }, { loading, rsql, biobankRsql }) => {
     if (loading) {
       return []
     }
@@ -21,6 +26,11 @@ export default {
       // first occurrence of ID only
         .filter((value, index, self) => self.indexOf(value) === index)
     }
+    // // Some filters are applied also to biobanks (i.e., country) so we should insert also biobanks not included in collectionInfo
+    // if (biobankRsql && biobankRsql.length) {
+    //   console.log(biobankIds.filter(biobankId => !ids.includes(biobankId)))
+    //   ids.push(...biobankIds.filter(biobankId => !ids.includes(biobankId)))
+    // }
     return ids.map(biobankId => {
       if (!Object.prototype.hasOwnProperty.call(biobanks, biobankId)) {
         return biobankId
@@ -120,13 +130,13 @@ export default {
     }
     return 'Something went wrong'
   },
-  networks: ({ biobankInfo, networks, networksIds }, { biobanks, loading, networksLoading }) => {
-    if (networksLoading || loading) {
+  networks: ({ biobankInfo, networks, networkIds }, { biobanks, loading }) => {
+    if (loading) {
       return []
     }
 
     const biobanksByNetwork = groupBiobanksByNetworkId(biobanks, biobankInfo)
-    return networksIds.map(networkId => {
+    return networkIds.map(networkId => {
       if (!Object.prototype.hasOwnProperty.call(networks, networkId)) {
         return networkId
       }
@@ -137,8 +147,8 @@ export default {
       }
     })
   },
-  foundNetworks: ({ networksIds }) => {
-    return networksIds ? networksIds.length : 0
+  foundNetworks: ({ networkIds }) => {
+    return networkIds ? networkIds.length : 0
   },
   viewMode: ({ viewMode }) => viewMode
 }

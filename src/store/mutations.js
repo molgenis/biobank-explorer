@@ -121,8 +121,8 @@ export default {
       Vue.set(state.networks, network.id, network)
     })
   },
-  SetNetworksIds (state, networksIds) {
-    state.networksIds = networksIds
+  SetnetworkIds (state, networkIds) {
+    state.networkIds = networkIds
   },
   SetQualityStandardDictionary (state, response) {
     // Combine arrays from two tables and deduplicate

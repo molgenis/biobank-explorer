@@ -110,7 +110,7 @@ export default {
   },
   GetNetworkInfo ({ commit, getters }) {
     // commit('SetNetworks', undefined)
-    commit('SetNetworksIds', undefined)
+    commit('SetnetworkIds', undefined)
     let url = '/api/data/eu_bbmri_eric_networks?filter=id,name&size=10000&sort=name'
     if (getters.networkRsql) {
       url = `${url}&q=${encodeRsqlValue(getters.networkRsql)}`
@@ -118,11 +118,11 @@ export default {
     api.get(url)
       .then(response => {
         const networks = response.items.map(item => item.data)
-        // const networkFilters = response.items.map(item => { return { text: item.data.name, value: item.data.id } })
+        const networkFilters = response.items.map(item => { return { text: item.data.name, value: item.data.id } })
         commit('SetNetworks', networks)
-        commit('SetNetworksIds', networks.map(network => network.id))
-        // commit('UpdateFilter', { name: 'collection_network', value: networkFilters, router: undefined })
-        // commit('UpdateFilter', { name: 'biobank_network', value: networkFilters, router: undefined })
+        commit('SetnetworkIds', networks.map(network => network.id))
+        commit('UpdateFilter', { name: 'collection_network', value: networkFilters, router: undefined })
+        commit('UpdateFilter', { name: 'biobank_network', value: networkFilters, router: undefined })
       }, error => {
         commit('SetError', error)
       })

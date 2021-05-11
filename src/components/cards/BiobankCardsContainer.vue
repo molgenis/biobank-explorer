@@ -59,7 +59,7 @@ export default {
   name: 'biobank-cards-container',
   data () {
     return {
-      currentPage: 0,
+      currentPage: 1,
       pageSize: 10
     }
   },
@@ -75,7 +75,8 @@ export default {
     ...mapGetters({
       globalBiobanks: 'biobanks',
       foundBiobanks: 'foundBiobanks',
-      loading: 'loading'
+      loading: 'loading',
+      viewMode: 'viewMode'
     }),
     biobanksShown () {
       const biobanks = this.$props.biobanks ? this.$props.biobanks : this.globalBiobanks
@@ -97,24 +98,22 @@ export default {
   },
   watch: {
     biobankIds (newValue, oldValue) {
-      console.log(newValue)
-      console.log(oldValue)
       if (newValue.length !== oldValue.length ||
         !newValue.every((element, index) => element === oldValue[index])) {
         this.currentPage = 1
       }
     },
     biobankIdsToFetch (value) {
-      console.log('Ids to fetch changed')
-      console.log(value.length)
       if (value.length > 0) {
         this.GetBiobanks(value)
       }
     }
   },
   mounted () {
-    console.log(this.biobankIds)
-    this.currentPage = 1
+    // If in networkview, the firts set of biobanksIds it is not fetched. This will force it
+    if (this.viewMode === 'networkview') {
+      this.GetBiobanks(this.biobankIdsToFetch)
+    }
   }
 }
 </script>
