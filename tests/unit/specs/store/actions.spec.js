@@ -111,6 +111,42 @@ describe('store', () => {
       })
     })
 
+    describe('GetNetworkIds', () => {
+      const response = {
+        items: [
+          { data: { id: 'n1', name: 'cool network 1' } },
+          { data: { id: 'n2', name: 'cool network 2' } }
+        ]
+      }
+
+      const networkFilters = [
+        { text: 'cool network 1', value: 'n1' },
+        { text: 'cool network 2', value: 'n2' }
+      ]
+
+      it('should set the list of network ids, network dictionary and apply filters by network for biobanks and collections ', async () => {
+        api.get.mockResolvedValueOnce(response)
+        const getters = { networkRsql: 'commons_sops==true' }
+        const commit = jest.fn()
+        await actions.GetNetworkInfo({ commit, getters })
+        expect(commit.mock.calls[0]).toEqual(['SetNetworkIds', undefined])
+        expect(commit.mock.calls[1]).toEqual(['SetNetworks', response.items.map(network => network.data)])
+        expect(commit.mock.calls[2]).toEqual(['SetNetworkIds', response.items.map(network => network.data.id)])
+        expect(commit.mock.calls[3]).toEqual(['UpdateFilter', { name: 'collection_network', value: networkFilters, router: undefined }])
+        expect(commit.mock.calls[4]).toEqual(['UpdateFilter', { name: 'biobank_network', value: networkFilters, router: undefined }])
+      })
+
+      it('should set an error if something wrong happens in rest call', async () => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+        const getters = { networkRsql: 'commons_sops==true' }
+        const commit = jest.fn()
+        await actions.GetNetworkInfo({ commit, getters })
+        expect(commit.mock.calls[0]).toEqual(['SetNetworkIds', undefined])
+        expect(commit.mock.calls[1]).toEqual(['SetError', error])
+      })
+    })
+
     describe('GetBiobankReport', () => {
       it('should retrieve a single biobank entity from the server based on a biobank id and store it in the state', done => {
         const biobank = {
@@ -152,6 +188,7 @@ describe('store', () => {
         utils.testAction(actions.GetBiobankReport, options, done)
       })
     })
+
     describe('GetCollectionReport', () => {
       it('should retrieve a single collection entity from the server based on a collection id and store it in the state', done => {
         const response = {

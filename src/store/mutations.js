@@ -121,7 +121,7 @@ export default {
       Vue.set(state.networks, network.id, network)
     })
   },
-  SetnetworkIds (state, networkIds) {
+  SetNetworkIds (state, networkIds) {
     state.networkIds = networkIds
   },
   SetQualityStandardDictionary (state, response) {
