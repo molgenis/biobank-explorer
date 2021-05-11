@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils'
+import { shallowMount, mount, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
 import BiobankExplorerContainer from '@/components/BiobankExplorerContainer'
 import BootstrapVue from 'bootstrap-vue'
@@ -18,12 +18,17 @@ describe('BiobankExplorerContainer', () => {
     { collectionId: 'C', biobankId: 'B', collectionName: 'Collection C' }, { collectionId: 'D', biobankId: 'E', collectionName: 'Collection D' }]
 
   const rsqlMock = jest.fn().mockReturnValue('')
+  // const networkRsqlMock = jest.fn().mockReturnValue('')
   const podiumCollectionsMock = jest.fn().mockReturnValue([])
   const selectedCollectionMock = jest.fn().mockReturnValue([])
   const foundCollectionsAsSelectionMock = jest.fn()
   const AddCollectionsToSelectionMock = jest.fn()
   const allCollectionsSelectedMock = jest.fn()
   const MapQueryToStateMock = jest.fn()
+  const GetNetworkInfo = jest.fn()
+  const GetBiobankIds = jest.fn()
+  const GetCollectionInfo = jest.fn()
+  const SetViewMode = jest.fn()
 
   beforeEach(() => {
     store = new Vuex.Store({
@@ -45,17 +50,23 @@ describe('BiobankExplorerContainer', () => {
       },
       mutations: {
         AddCollectionsToSelection: AddCollectionsToSelectionMock,
-        MapQueryToState: MapQueryToStateMock
+        MapQueryToState: MapQueryToStateMock,
+        SetViewMode: SetViewMode
       },
       actions: {
         SendToNegotiator: jest.fn(),
-        GetBiobankIds: jest.fn(),
+        GetBiobankIds: GetBiobankIds,
         GetPodiumCollections: jest.fn(),
-        GetCollectionInfo: jest.fn(),
+        GetCollectionInfo: GetCollectionInfo,
         GetBiobankIdsForQuality: jest.fn(),
-        GetCollectionIdsForQuality: jest.fn()
+        GetCollectionIdsForQuality: jest.fn(),
+        GetNetworkInfo: GetNetworkInfo
       }
     })
+    GetNetworkInfo.mockReset()
+    GetBiobankIds.mockReset()
+    GetCollectionInfo.mockReset()
+    SetViewMode.mockReset()
   })
 
   it('should not render cart when no selection is made', () => {
@@ -63,10 +74,39 @@ describe('BiobankExplorerContainer', () => {
     expect(wrapper.html()).not.toContain('cart-selection-toast')
   })
 
+  it('should render biobank-card-container if the view mode is biobankview or undefined', () => {
+    let wrapper = shallowMount(BiobankExplorerContainer, { propsData: { mode: 'biobankview' }, store, localVue })
+    expect(wrapper.html()).toContain('<biobank-cards-container-stub>')
+
+    wrapper = shallowMount(BiobankExplorerContainer, { store, localVue })
+    expect(wrapper.html()).toContain('<biobank-cards-container-stub>')
+  })
+
+  it('should render network-card-container if the view mode is networkview', () => {
+    const wrapper = shallowMount(BiobankExplorerContainer, { propsData: { mode: 'networkview' }, store, localVue })
+    expect(wrapper.html()).toContain('<network-cards-container-stub>')
+  })
+
   it('should render cart when one more more items are selected', async () => {
     selectedCollectionMock.mockReturnValueOnce(['a', 'b', 'c'])
     const wrapper = shallowMount(BiobankExplorerContainer, { store, localVue })
     expect(wrapper.html()).toContain('3 collection(s) selected')
+  })
+
+  it('should trigger GetNetworkInfo if the view mode is networkview', async () => {
+    shallowMount(BiobankExplorerContainer, { propsData: { mode: 'networkview' }, store, localVue })
+    expect(SetViewMode.mock.calls[0]).toEqual([store.state, 'networkview'])
+    expect(GetNetworkInfo.mock.calls.length).toEqual(1)
+    expect(GetBiobankIds.mock.calls.length).toEqual(0)
+    expect(GetCollectionInfo.mock.calls.length).toEqual(0)
+  })
+
+  it('should trigger GetBiobankIds and GetCollectionInfo if the view mode is biobankview', async () => {
+    shallowMount(BiobankExplorerContainer, { propsData: { mode: 'biobankview' }, store, localVue })
+    expect(SetViewMode.mock.calls[0]).toEqual([store.state, 'biobankview'])
+    expect(GetNetworkInfo.mock.calls.length).toEqual(0)
+    expect(GetBiobankIds.mock.calls.length).toEqual(1)
+    expect(GetCollectionInfo.mock.calls.length).toEqual(1)
   })
 
   describe('Podium logic', () => {

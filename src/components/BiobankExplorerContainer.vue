@@ -176,7 +176,7 @@ export default {
   props: {
     mode: {
       type: String,
-      default: 'networkview'
+      default: 'biobankview'
     }
   },
   components: {
