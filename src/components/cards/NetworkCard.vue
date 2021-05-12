@@ -4,7 +4,7 @@
   >
     <div
       class="card-header network-card-header bg-warning"
-      @click="openCard"
+      @click.prevent="collapsed=!collapsed"
     >
       <div class="row">
         <div class="col-md-5 d-flex flex-column" v-if="!loading">
@@ -20,13 +20,6 @@
               <span id="network-name">{{ network.name }}</span>
             </h5>
           </div>
-          <!-- <collection-selector
-            class="align-with-table mt-auto w-25"
-            v-if="biobank.collections.length > 0"
-            :collectionData="biobank.collections"
-            icon-only
-            router-enabled
-          ></collection-selector> -->
         </div>
         <div class="col-md-6" v-if="!loading">
           <p>
@@ -42,35 +35,21 @@
         </div>
       </div>
     </div>
-    <div class="card-body network-table-card" v-if="!collapsed && !loading">
+    <div class="card-body" v-if="!collapsed && !loading">
       <biobank-cards-container
         :biobanks="network.biobanks">
       </biobank-cards-container>
-      <!-- <network-children-table
-        v-if="network.biobanks.length > 0"
-        :biobanks="network.biobanks"
-      ></network-children-table> -->
     </div>
   </div>
 </template>
 
 <script>
-// import CollectionSelector from '@/components/buttons/CollectionSelector'
-// import NetworkChildrenTable from '../tables/NetworkChildrenTable.vue'
-import { mapActions, mapGetters, mapState } from 'vuex'
-// import utils from '../../utils'
-// import { sortCollectionsByName } from '../../utils/sorting'
-// import QualityColumn from '../tables/QualityColumn'
-import 'array-flat-polyfill'
 import BiobankCardsContainer from './BiobankCardsContainer.vue'
 
 export default {
   name: 'network-card',
   components: {
-    // NetworkChildrenTable,
     BiobankCardsContainer
-    // QualityColumn,
-    // CollectionSelector
   },
   props: {
     network: {
@@ -84,45 +63,18 @@ export default {
   },
   data () {
     return {
-      networkSelected: false,
       collapsed: this.initCollapsed
     }
   },
   computed: {
-    ...mapState(['qualityStandardsDictionary']),
-    ...mapGetters(['selectedCollections']),
     loading () {
       return typeof this.network === 'string'
-    }
-  },
-  methods: {
-    ...mapActions(['GetNetworkReport']),
-    openCard (event) {
-      event.preventDefault()
-      this.collapsed = !this.collapsed
-      // this.GetNetworkReport(this.network.id)
     }
   }
 }
 </script>
 
 <style>
-.network-table-card {
-  padding: 1rem;
-  /* max-height: 200px; */
-}
-.align-with-table {
-  margin-left: 0.1rem;
-}
-
-.added-to-selection {
-  position: absolute;
-  z-index: 2;
-  top: 9px;
-  right: -5px;
-  background: white;
-  border-radius: 50%;
-}
 .network-card {
   margin-bottom: 1em;
 }
@@ -144,54 +96,9 @@ export default {
   cursor: pointer;
 }
 
-.covid-icon {
-  height: 1.5rem;
-  width: auto;
-}
-
 .icon-alignment {
   position: relative;
   top: 1px;
   left: 2px;
-}
-
-.fa-question-circle {
-  position: relative;
-  top: 4px;
-}
-
-/* Add popover overrides so that it is always clearly visible in any theme (even custom ones) */
-.quality-marks-popover {
-  background-color: white !important;
-  border: solid black 0.5px;
-  max-width: 40rem;
-}
-
-.quality-marks-popover[x-placement^='top'] > .arrow::before {
-  border-top-color: black !important;
-}
-.quality-marks-popover[x-placement^='top'] > .arrow::after {
-  border-top-color: white !important;
-}
-
-.quality-marks-popover[x-placement^='bottom'] > .arrow::before {
-  border-bottom-color: black !important;
-}
-.quality-marks-popover[x-placement^='bottom'] > .arrow::after {
-  border-bottom-color: white !important;
-}
-
-.popover-trigger-area {
-  position: relative;
-}
-
-/* for touch screens, so you have a nice area to press and still get a popover */
-.popover-trigger-area::after {
-  content: '';
-  position: absolute;
-  top: -0.5rem;
-  bottom: -1rem;
-  right: -7rem;
-  left: -0.5rem;
 }
 </style>
