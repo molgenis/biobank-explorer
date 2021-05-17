@@ -22,7 +22,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['activeFilters', 'filterDefinitions', 'selectedCollections']),
+    ...mapGetters(['showCountryFacet', 'activeFilters', 'filterDefinitions', 'selectedCollections']),
     filters () {
       return this.filterDefinitions.filter((facet) => {
         // config option showCountryFacet is used to toggle Country facet
