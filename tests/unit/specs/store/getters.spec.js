@@ -109,7 +109,6 @@ describe('store', () => {
             collections: [{ id: 'col-3', sub_collections: [{ id: 'col-4', sub_collections: [] }] }]
           }])
         })
-
       it('should return the biobanks in the order they appear in collectionInfo', () => {
         const state = {
           biobanks: {
@@ -128,6 +127,20 @@ describe('store', () => {
           { id: '1', name: 'B', collections: [{ id: 'col-1', sub_collections: [] }] }
         ])
       })
+      it('should include biobanks not in collectionInfo if the biobanks filter is set', () => {
+        state.biobanks = {
+          1: { id: '1', name: 'one', collections: [{ id: 'col-1', sub_collections: [] }] },
+          2: { id: '2', name: 'two', collections: [{ id: 'col-2', sub_collections: [] }, { id: 'col-3', sub_collections: [] }] }
+        }
+        state.biobankIds = ['1', '2']
+        state.collectionInfo = [{ collectionId: 'col-2', biobankId: '2' }]
+        const otherGetters = { loading: false, rsql: 'type=in=(type1)', biobankRsql: 'network=in=(n1)' }
+        expect(getters.biobanks(state, otherGetters)).toStrictEqual([{ id: '2', name: 'two', collections: [{ id: 'col-2', sub_collections: [] }] }, { id: '1', name: 'one', collections: [{ id: 'col-1', sub_collections: [] }] }])
+      })
+    })
+
+    it('should return the number of foundBiobanks', () => {
+      expect(getters.foundBiobanks(undefined, getters)).toBe(2)
     })
 
     it('should return the total amount of collections for found biobanks', () => {
@@ -344,73 +357,40 @@ describe('store', () => {
         state = {}
         expect(getters.networks(state, { loading: true })).toStrictEqual([])
       })
-      it('should look up the biobanks for matching collection ids and filter the biobank\'s collections', () => {
-        state.biobanks = {
-          1: { id: '1', name: 'one', collections: [{ id: 'col-1', sub_collections: [] }] },
-          2: { id: '2', name: 'two', collections: [{ id: 'col-2', sub_collections: [] }, { id: 'col-3', sub_collections: [] }] }
+      it('should return a list of networks with the list of its biobanks', () => {
+        state.networkIds = ['n1', 'n2', 'n3']
+        state.networks = {
+          n1: { id: 'n1', name: 'network 1' },
+          n2: { id: 'n2', name: 'network 2' },
+          n3: { id: 'n3', name: 'network 3' }
         }
-        state.biobankIds = ['1', '2']
-        state.collectionInfo = [{ collectionId: 'col-2', biobankId: '2' }]
-        const otherGetters = { loading: false, rsql: 'type=in=(type1)' }
-        expect(getters.biobanks(state, otherGetters)).toStrictEqual([{ id: '2', name: 'two', collections: [{ id: 'col-2', sub_collections: [] }] }])
-      })
-      it('should return all biobanks if the collections are not filtered', () => {
-        state.biobanks = {
-          2: { id: '2', name: 'two', collections: [{ id: 'col-2', sub_collections: [] }] }
+        state.biobankInfo = {
+          b1: { id: 'b1', name: 'biobank one', networkIds: ['n1', 'n3'] },
+          b2: { id: 'b2', name: 'biobank two', networkIds: ['n1', 'n2'] },
+          b3: { id: 'b3', name: 'biobank three', networkIds: ['n1'] },
+          b4: { id: 'b4', name: 'biobank four', networkIds: ['n2', 'n3'] }
         }
-        state.biobankIds = ['1', '2']
-        state.collectionInfo = [{ collectionId: 'col-2', biobankId: '2' }]
+        const biobanks = ['b1', 'b2', 'b3', { id: 'b4', collections: { id: 'col-1' } }]
+        const otherGetters = { loading: false, biobanks: biobanks }
+        const expected = [
+          { id: 'n1', name: 'network 1', biobanks: ['b1', 'b2', 'b3'] },
+          { id: 'n2', name: 'network 2', biobanks: ['b2', { id: 'b4', collections: { id: 'col-1' } }] },
+          { id: 'n3', name: 'network 3', biobanks: ['b1', { id: 'b4', collections: { id: 'col-1' } }] }
+        ]
 
-        const otherGetters = { loading: false, rsql: '' }
-        expect(getters.biobanks(state, otherGetters)).toStrictEqual([
-          '1',
-          { id: '2', name: 'two', collections: [{ id: 'col-2', sub_collections: [] }] }
-        ])
+        expect(getters.networks(state, otherGetters)).toStrictEqual(expected)
       })
-      it('should not filter out collections with matching subcollections',
-        () => {
-          const biobank1 = {
-            id: '1',
-            name: 'one',
-            collections: [{ id: 'col-1', sub_collections: [] }]
-          }
-          const biobank2 = {
-            id: '2',
-            name: 'two',
-            collections: [
-              { id: 'col-2', sub_collections: [] },
-              { id: 'col-3', sub_collections: [{ id: 'col-4', sub_collections: [] }] }]
-          }
-          const state = {
-            biobanks: { 1: biobank1, 2: biobank2 },
-            biobankIds: ['1', '2'],
-            collectionInfo: [{ collectionId: 'col-4', biobankId: '2' }]
-          }
-          const otherGetters = { loading: false, rsql: 'type=in=(type1)' }
-          expect(getters.biobanks(state, otherGetters)).toStrictEqual([{
-            id: '2',
-            name: 'two',
-            collections: [{ id: 'col-3', sub_collections: [{ id: 'col-4', sub_collections: [] }] }]
-          }])
-        })
+    })
+    describe('foundNetworks', () => {
+      it('should return the number of networks found', () => {
+        state.networkIds = ['n1', 'n2', 'n3']
+        expect(getters.foundNetworks(state)).toBe(3)
+      })
+    })
 
-      it('should return the biobanks in the order they appear in collectionInfo', () => {
-        const state = {
-          biobanks: {
-            1: { id: '1', name: 'B', collections: [{ id: 'col-1', sub_collections: [] }] },
-            2: { id: '2', name: 'A', collections: [{ id: 'col-2', sub_collections: [] }] }
-          },
-          biobankIds: ['1', '2'],
-          collectionInfo: [
-            { collectionId: 'col-1', biobankId: '2' },
-            { collectionId: 'col-2', biobankId: '1' }
-          ]
-        }
-        const otherGetters = { loading: false, rsql: 'type=in=(type1)' }
-        expect(getters.biobanks(state, otherGetters)).toStrictEqual([
-          { id: '2', name: 'A', collections: [{ id: 'col-2', sub_collections: [] }] },
-          { id: '1', name: 'B', collections: [{ id: 'col-1', sub_collections: [] }] }
-        ])
+    describe('viewMode', () => {
+      it('should return the number of networks found', () => {
+        expect(getters.viewMode(state)).toBe('biobankview')
       })
     })
   })
