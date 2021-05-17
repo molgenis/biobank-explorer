@@ -88,6 +88,17 @@ describe('store', () => {
         expect(commit.mock.calls[2]).toEqual(['SetBiobankIds', ['biobank-1', 'biobank-2']])
         expect(commit.mock.calls[3]).toEqual(['SetBiobankInfo', response])
       })
+
+      it('should set an error if something wrong happens in rest call', async () => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+
+        const getters = { biobankRsql: 'covid19=in=(covid19)' }
+        const commit = jest.fn()
+
+        await actions.GetBiobankIds({ commit, getters })
+        expect(commit.mock.calls[2]).toEqual(['SetError', error])
+      })
     })
 
     describe('GetCollectionInfo', () => {
@@ -108,6 +119,16 @@ describe('store', () => {
         expect(commit.mock.calls[1]).toEqual(['SetCollectionInfo', response])
         expect(commit.mock.calls[2]).toEqual(['SetDictionaries', response])
         expect(commit.mock.calls[3]).toEqual(['MapQueryToState'])
+      })
+
+      it('should set an error if something wrong happens in rest call', async () => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+        const getters = { rsql: 'country=in=(NL,BE)' }
+        const commit = jest.fn()
+
+        await actions.GetCollectionInfo({ commit, getters })
+        expect(commit.mock.calls[1]).toEqual(['SetError', error])
       })
     })
 
@@ -187,6 +208,21 @@ describe('store', () => {
 
         utils.testAction(actions.GetBiobankReport, options, done)
       })
+
+      it('should set an error if something wrong happens in rest call', done => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+
+        const options = {
+          payload: '001',
+          expectedMutations: [
+            { type: 'SetLoading', payload: true },
+            { type: 'SetError', payload: error },
+            { type: 'SetLoading', payload: false }
+          ]
+        }
+        utils.testAction(actions.GetBiobankReport, options, done)
+      })
     })
 
     describe('GetCollectionReport', () => {
@@ -207,6 +243,21 @@ describe('store', () => {
           expectedMutations: [
             { type: 'SetLoading', payload: true },
             { type: 'SetCollectionReport', payload: response },
+            { type: 'SetLoading', payload: false }
+          ]
+        }
+        utils.testAction(actions.GetCollectionReport, options, done)
+      })
+
+      it('should set an error if something wrong happens in rest call', done => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+
+        const options = {
+          payload: '001',
+          expectedMutations: [
+            { type: 'SetLoading', payload: true },
+            { type: 'SetError', payload: error },
             { type: 'SetLoading', payload: false }
           ]
         }
