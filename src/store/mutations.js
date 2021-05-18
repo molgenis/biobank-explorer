@@ -271,6 +271,8 @@ export default {
     }
   },
   SetViewMode (state, viewMode) {
-    state.viewMode = viewMode
+    if (viewMode === 'biobankview' || viewMode === 'networkview') {
+      state.viewMode = viewMode
+    }
   }
 }
