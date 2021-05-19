@@ -190,6 +190,35 @@ describe('store', () => {
       })
     })
 
+    describe('createNetworkRSQLQuery', () => {
+      afterEach(() => { state = getInitialState() })
+
+      it('should create a query with common_sops filter', () => {
+        state.filters.selections.network_common_properties = ['common_sops', 'common_collection_focus']
+        const actual = helpers.createNetworkRSQLQuery(state)
+        const expected = 'common_sops==true;common_collection_focus==true'
+
+        expect(actual).toBe(expected)
+      })
+
+      it('should create a query with search filter', () => {
+        state.filters.selections.search = 'network_name'
+        const actual = helpers.createNetworkRSQLQuery(state)
+        const expected = 'name=q=network_name'
+
+        expect(actual).toBe(expected)
+      })
+
+      it('should create a query with common_properties filter and search filter', () => {
+        state.filters.selections.network_common_properties = ['common_sops', 'common_collection_focus']
+        state.filters.selections.search = 'network_name'
+        const actual = helpers.createNetworkRSQLQuery(state)
+        const expected = 'common_sops==true;common_collection_focus==true;name=q=network_name'
+
+        expect(actual).toBe(expected)
+      })
+    })
+
     describe('createNegotiatorQueryBody', () => {
       it('should generate a negotiator query with collection and biobank filter expressions', async () => {
         state.negotiatorBiobankEntityId = 'eu_bbmri_eric_biobanks'

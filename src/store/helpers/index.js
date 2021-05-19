@@ -31,7 +31,7 @@ export const createRSQLQuery = (state) => {
             createInQuery('biobank', state.biobankInANetwork)
           ])
         } : [],
-      state.filters.selections.search ? [{
+      state.filters.selections.search && state.viewMode === 'biobankview' ? [{
         operator: 'OR',
         operands: ['name', 'id', 'acronym', 'biobank.name', 'biobank.id', 'biobank.acronym']
           .map(attr => ({ selector: attr, comparison: '=q=', arguments: state.filters.selections.search || '' }))
@@ -56,11 +56,14 @@ export const createBiobankRSQLQuery = (state) => transformToRSQL({
  */
 export const createNetworkRSQLQuery = (state) => transformToRSQL({
   operator: 'AND',
-  operands: flatten(
-    state.filters.selections.network_common_properties
-      ? state.filters.selections.network_common_properties.map((property) => createComparisons(property, [true]))
-      : []
-  )
+  operands: flatten([
+    flatten(
+      state.filters.selections.network_common_properties
+        ? state.filters.selections.network_common_properties.map((property) => createComparisons(property, [true]))
+        : []
+    ),
+    state.filters.selections.search ? { selector: 'name', comparison: '=q=', arguments: state.filters.selections.search } : []
+  ])
 })
 
 const createNegotiatorQueryBody = async (state, getters, url) => {
@@ -155,6 +158,7 @@ export const getActiveFilters = (state, filterDefinitions) => {
 
 export default {
   createRSQLQuery,
+  createNetworkRSQLQuery,
   createNegotiatorQueryBody,
   getHumanReadableString,
   setLocationHref,
