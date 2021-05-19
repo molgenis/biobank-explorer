@@ -22,9 +22,15 @@ export const createRSQLQuery = (state) => {
       createInQuery('data_categories', state.filters.selections.dataType || []),
       createInQuery('diagnosis_available.code', state.filters.selections.diagnosis_available || []),
       createInQuery('id', state.collectionIdsWithSelectedQuality),
-      createInQuery('biobank', state.biobankInANetwork),
       createInQuery('collaboration_commercial', state.filters.selections.commercial_use || []),
-      createInQuery('network', state.filters.selections.collection_network || []),
+      (state.filters.selections.collection_network && state.filters.selections.collection_network.length > 0) ||
+      (state.biobankInANetwork && state.biobankInANetwork.length > 0) ? {
+          operator: 'OR',
+          operands: flatten([
+            createInQuery('network', state.filters.selections.collection_network || []),
+            createInQuery('biobank', state.biobankInANetwork)
+          ])
+        } : [],
       state.filters.selections.search ? [{
         operator: 'OR',
         operands: ['name', 'id', 'acronym', 'biobank.name', 'biobank.id', 'biobank.acronym']

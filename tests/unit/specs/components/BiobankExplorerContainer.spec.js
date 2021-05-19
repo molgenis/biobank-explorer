@@ -38,6 +38,7 @@ describe('BiobankExplorerContainer', () => {
         networkRsql: networkRsqlMock,
         activeFilters: () => {},
         biobankRsql: () => '',
+        selectedBiobankInNetwork: () => [],
         selectedBiobankQuality: () => [],
         selectedCollectionQuality: () => [],
         selectedCollections: selectedCollectionMock,
