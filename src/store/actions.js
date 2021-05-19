@@ -57,6 +57,15 @@ export default {
       api.get(url)
         .then(response => {
           commit('SetBiobankIdsInANetwork', response)
+          // Applies also the filter for collection in networks
+          if (state.viewMode === 'networkview') {
+            const networkLabels = state.filters.labels.biobank_network
+            commit('UpdateFilter', {
+              name: 'collection_network',
+              value: networkIds.map((item, index) => { return { value: item, text: networkLabels[index] } }),
+              router: undefined
+            })
+          }
         }, error => {
           commit('SetError', error)
         })
@@ -136,8 +145,8 @@ export default {
         const networkFilters = response.items.map(item => { return { text: item.data.name, value: item.data.id } })
         commit('SetNetworks', networks)
         commit('SetNetworkIds', networks.map(network => network.id))
-        commit('UpdateFilter', { name: 'collection_network', value: networkFilters, router: undefined })
         commit('UpdateFilter', { name: 'biobank_network', value: networkFilters, router: undefined })
+        // commit('UpdateFilter', { name: 'collection_network', value: networkFilters, router: undefined })
       }, error => {
         commit('SetError', error)
       })
