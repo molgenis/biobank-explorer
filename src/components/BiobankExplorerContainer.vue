@@ -202,6 +202,7 @@ export default {
       'foundCollectionIds',
       'activeFilters',
       'collectionsInPodium',
+      'selectedBiobankInNetwork',
       'selectedBiobankQuality',
       'selectedCollectionQuality',
       'selectedCollections',
@@ -240,6 +241,10 @@ export default {
     }
   },
   watch: {
+    selectedBiobankInNetwork: {
+      immediate: false,
+      handler: 'GetBiobankIdsInNetwork'
+    },
     selectedBiobankQuality: {
       immediate: true,
       handler: 'GetBiobankIdsForQuality'
@@ -273,7 +278,8 @@ export default {
       'GetNetworkInfo',
       'GetPodiumCollections',
       'GetBiobankIdsForQuality',
-      'GetCollectionIdsForQuality'
+      'GetCollectionIdsForQuality',
+      'GetBiobankIdsInNetwork'
     ]),
     isNonCommercialCollection (collectionId) {
       return this.nonCommercialCollections.indexOf(collectionId) >= 0

@@ -49,6 +49,21 @@ export default {
         commit('SetError', error)
       })
   },
+  GetBiobankIdsInNetwork ({ state, commit }) {
+    // const biobankNetwork = state.route.query.biobank_network ? state.route.query.biobank_network : null
+    const networkIds = state.filters.selections.biobank_network
+    if (networkIds && networkIds.length > 0) {
+      const url = `/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(${networkIds})`
+      api.get(url)
+        .then(response => {
+          commit('SetBiobankIdsInANetwork', response)
+        }, error => {
+          commit('SetError', error)
+        })
+    } else {
+      commit('SetBiobankIdsInANetwork', [])
+    }
+  },
   // We need to get id's to use in RSQL later, because we can't do a join on this table
   GetCollectionIdsForQuality ({ state, commit }) {
     const collectionQuality = state.route.query.collection_quality ? state.route.query.collection_quality : null

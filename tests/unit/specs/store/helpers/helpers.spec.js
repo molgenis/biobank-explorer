@@ -144,6 +144,15 @@ describe('store', () => {
         expect(actual).toBe(expected)
       })
 
+      it('should create a query with only a biobank filter', () => {
+        state.biobankInANetwork = ['b1', 'b2', 'b3']
+
+        const actual = helpers.createRSQLQuery(state)
+        const expected = 'biobank=in=(b1,b2,b3)'
+
+        expect(actual).toBe(expected)
+      })
+
       it('should create a query with no filters and no search', () => {
         const actual = helpers.createRSQLQuery(state)
         const expected = ''

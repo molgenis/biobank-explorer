@@ -127,16 +127,6 @@ describe('store', () => {
           { id: '1', name: 'B', collections: [{ id: 'col-1', sub_collections: [] }] }
         ])
       })
-      it('should include biobanks not in collectionInfo if the biobanks filter is set', () => {
-        state.biobanks = {
-          1: { id: '1', name: 'one', collections: [{ id: 'col-1', sub_collections: [] }] },
-          2: { id: '2', name: 'two', collections: [{ id: 'col-2', sub_collections: [] }, { id: 'col-3', sub_collections: [] }] }
-        }
-        state.biobankIds = ['1', '2']
-        state.collectionInfo = [{ collectionId: 'col-2', biobankId: '2' }]
-        const otherGetters = { loading: false, rsql: 'type=in=(type1)', biobankRsql: 'network=in=(n1)' }
-        expect(getters.biobanks(state, otherGetters)).toStrictEqual([{ id: '2', name: 'two', collections: [{ id: 'col-2', sub_collections: [] }] }, { id: '1', name: 'one', collections: [{ id: 'col-1', sub_collections: [] }] }])
-      })
     })
 
     it('should return the number of foundBiobanks', () => {
@@ -352,6 +342,20 @@ describe('store', () => {
       })
     })
 
+    describe('selectedBiobankInNetwork', () => {
+      const state = {
+        filters: {
+          selections: {
+            biobank_network: ['n1', 'n2']
+          }
+        }
+      }
+      it('should return the value of biobank_network filter', () => {
+        const selectedBiobankInNetwork = getters.selectedBiobankInNetwork(state)
+        expect(selectedBiobankInNetwork).toStrictEqual(['n1', 'n2'])
+      })
+    })
+
     describe('networks', () => {
       it('should return empty list when loading', () => {
         state = {}
@@ -381,6 +385,7 @@ describe('store', () => {
         expect(getters.networks(state, otherGetters)).toStrictEqual(expected)
       })
     })
+
     describe('foundNetworks', () => {
       it('should return the number of networks found', () => {
         state.networkIds = ['n1', 'n2', 'n3']

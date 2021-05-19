@@ -18,7 +18,7 @@ export default {
     ...mapMutations(['UpdateAllFilters']),
     changeAllFilters (value) {
       this.UpdateAllFilters(value)
-      createBookmark(this.$router, value, this.selectedCollections)
+      createBookmark(this.$router, this.activeFilters, this.selectedCollections)
     }
   },
   computed: {
