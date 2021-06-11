@@ -49,6 +49,30 @@ export default {
         commit('SetError', error)
       })
   },
+  GetBiobankIdsInNetwork ({ state, commit }) {
+    // const biobankNetwork = state.route.query.biobank_network ? state.route.query.biobank_network : null
+    const networkIds = state.filters.selections.biobank_network
+    if (networkIds && networkIds.length > 0) {
+      const url = `/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(${networkIds})`
+      api.get(url)
+        .then(response => {
+          commit('SetBiobankIdsInANetwork', response)
+          // Applies also the filter for collection in networks
+          if (state.viewMode === 'networkview') {
+            const networkLabels = state.filters.labels.biobank_network
+            commit('UpdateFilter', {
+              name: 'collection_network',
+              value: networkIds.map((item, index) => { return { value: item, text: networkLabels[index] } }),
+              router: undefined
+            })
+          }
+        }, error => {
+          commit('SetError', error)
+        })
+    } else {
+      commit('SetBiobankIdsInANetwork', [])
+    }
+  },
   // We need to get id's to use in RSQL later, because we can't do a join on this table
   GetCollectionIdsForQuality ({ state, commit }) {
     const collectionQuality = state.route.query.collection_quality ? state.route.query.collection_quality : null
@@ -80,7 +104,7 @@ export default {
    */
   GetCollectionInfo ({ commit, getters }) {
     commit('SetCollectionInfo', undefined)
-    let url = '/api/data/eu_bbmri_eric_collections?filter=id,biobank(id,name,label),name,label,collaboration_commercial,parent_collection&expand=biobank&size=10000&sort=biobank_label'
+    let url = '/api/data/eu_bbmri_eric_collections?filter=id,biobank(id,name,label),network(id,name,label),name,label,collaboration_commercial,parent_collection&expand=biobank,network&size=10000&sort=biobank_label'
     if (getters.rsql) {
       url = `${url}&q=${encodeRsqlValue(getters.rsql)}`
     }
@@ -95,13 +119,34 @@ export default {
   },
   GetBiobankIds ({ commit, getters }) {
     commit('SetBiobankIds', undefined)
-    let url = '/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name'
+    commit('SetBiobankInfo', undefined)
+    let url = '/api/data/eu_bbmri_eric_biobanks?filter=id,name,network(id,name)&expand=network&size=10000&sort=name'
     if (getters.biobankRsql) {
       url = `${url}&q=${encodeRsqlValue(getters.biobankRsql)}`
     }
     api.get(url)
       .then(response => {
         commit('SetBiobankIds', response.items.map(item => item.data.id))
+        commit('SetBiobankInfo', response)
+      }, error => {
+        commit('SetError', error)
+      })
+  },
+  GetNetworkInfo ({ commit, getters }) {
+    // commit('SetNetworks', undefined)
+    commit('SetNetworkIds', undefined)
+    let url = '/api/data/eu_bbmri_eric_networks?filter=id,name&size=10000&sort=name'
+    if (getters.networkRsql) {
+      url = `${url}&q=${encodeRsqlValue(getters.networkRsql)}`
+    }
+    api.get(url)
+      .then(response => {
+        const networks = response.items.map(item => item.data)
+        const networkFilters = response.items.map(item => { return { text: item.data.name, value: item.data.id } })
+        commit('SetNetworks', networks)
+        commit('SetNetworkIds', networks.map(network => network.id))
+        commit('UpdateFilter', { name: 'biobank_network', value: networkFilters, router: undefined })
+        // commit('UpdateFilter', { name: 'collection_network', value: networkFilters, router: undefined })
       }, error => {
         commit('SetError', error)
       })

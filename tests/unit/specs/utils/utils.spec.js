@@ -63,4 +63,36 @@ describe('Utilities', () => {
       expect(actual).toStrictEqual(expected)
     })
   })
+
+  describe('check array equality', () => {
+    it('should return true', () => {
+      const a = ['a', 'b', 1]
+      const b = ['a', 'b', 1]
+      expect(utils.arrayEqual(a, b)).toBe(true)
+    })
+
+    it('should return false when the length is different', () => {
+      const a = ['a', 'b']
+      const b = ['a', 'b', 1]
+      expect(utils.arrayEqual(a, b)).toBe(false)
+    })
+
+    it('should return false when one element is different', () => {
+      const a = ['a', 'b', 2]
+      const b = ['a', 'b', 1]
+      expect(utils.arrayEqual(a, b)).toBe(false)
+    })
+
+    it('should return false when one is not an array', () => {
+      const a = ['a', 'b', 'c']
+      const b = 'abc'
+      expect(utils.arrayEqual(a, b)).toBe(false)
+    })
+
+    it('should return false when one the order of the item is different', () => {
+      const a = ['a', 'b', 1]
+      const b = ['a', 1, 'b']
+      expect(utils.arrayEqual(a, b)).toBe(false)
+    })
+  })
 })

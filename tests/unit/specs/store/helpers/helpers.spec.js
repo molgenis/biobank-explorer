@@ -144,6 +144,25 @@ describe('store', () => {
         expect(actual).toBe(expected)
       })
 
+      it('should create a query with only a biobank filter', () => {
+        state.biobankInANetwork = ['b1', 'b2', 'b3']
+
+        const actual = helpers.createRSQLQuery(state)
+        const expected = 'biobank=in=(b1,b2,b3)'
+
+        expect(actual).toBe(expected)
+      })
+
+      it('should create a query with biobank filter and network filter in or', () => {
+        state.filters.selections.collection_network = ['n1', 'n2']
+        state.biobankInANetwork = ['b1', 'b2', 'b3']
+
+        const actual = helpers.createRSQLQuery(state)
+        const expected = 'network=in=(n1,n2),biobank=in=(b1,b2,b3)'
+
+        expect(actual).toBe(expected)
+      })
+
       it('should create a query with no filters and no search', () => {
         const actual = helpers.createRSQLQuery(state)
         const expected = ''
@@ -166,6 +185,35 @@ describe('store', () => {
 
         const actual = helpers.createRSQLQuery(state)
         const expected = 'country=in=(NL,BE);(name=q=\'test search\',id=q=\'test search\',acronym=q=\'test search\',biobank.name=q=\'test search\',biobank.id=q=\'test search\',biobank.acronym=q=\'test search\')'
+
+        expect(actual).toBe(expected)
+      })
+    })
+
+    describe('createNetworkRSQLQuery', () => {
+      afterEach(() => { state = getInitialState() })
+
+      it('should create a query with common_sops filter', () => {
+        state.filters.selections.network_common_properties = ['common_sops', 'common_collection_focus']
+        const actual = helpers.createNetworkRSQLQuery(state)
+        const expected = 'common_sops==true;common_collection_focus==true'
+
+        expect(actual).toBe(expected)
+      })
+
+      it('should create a query with search filter', () => {
+        state.filters.selections.search = 'network_name'
+        const actual = helpers.createNetworkRSQLQuery(state)
+        const expected = 'name=q=network_name'
+
+        expect(actual).toBe(expected)
+      })
+
+      it('should create a query with common_properties filter and search filter', () => {
+        state.filters.selections.network_common_properties = ['common_sops', 'common_collection_focus']
+        state.filters.selections.search = 'network_name'
+        const actual = helpers.createNetworkRSQLQuery(state)
+        const expected = 'common_sops==true;common_collection_focus==true;name=q=network_name'
 
         expect(actual).toBe(expected)
       })

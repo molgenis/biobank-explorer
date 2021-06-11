@@ -1,6 +1,6 @@
 <template>
   <div id="filter-container">
-    <FilterCard name="search" label="Search" description="Search by name, id, acronym" :collapsed="!this.$store.state.route.query.search">
+    <FilterCard name="search" label="Search" :description=description :collapsed="!this.$store.state.route.query.search">
       <StringFilter name="Search" v-model="search"></StringFilter>
     </FilterCard>
     <FilterCard
@@ -42,7 +42,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['showCountryFacet', 'activeFilters', 'filterDefinitions', 'bookmarkMappedToState']),
+    ...mapGetters(['showCountryFacet', 'activeFilters', 'filterDefinitions', 'bookmarkMappedToState', 'viewMode']),
+    description () {
+      return this.viewMode === 'biobankview' ? 'Search by name, id, acronym' : 'Search by name'
+    },
     search: {
       get () {
         return this.activeFilters.search

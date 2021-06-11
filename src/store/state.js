@@ -15,6 +15,10 @@ export default {
   biobanks: {},
   // IDs of biobanks matching the biobank filters
   biobankIds: undefined,
+  biobankInfo: undefined,
+  // IDs of networks matching the network filters
+  networks: {},
+  networkIds: undefined,
   // IDs of collections matching the collection filters
   collectionInfo: undefined,
   /* A single biobank object which is fetched by ID for showing the BiobankReportCard component */
@@ -28,6 +32,7 @@ export default {
   /* Randomly generated 32 character token provided by the Negotiator
   when they want to edit an existing query */
   nToken: null,
+  biobankInANetwork: [],
   collectionIdsWithSelectedQuality: [],
   biobankIdsWithSelectedQuality: [],
   filterIdLabelDictionary: {},
@@ -40,5 +45,6 @@ export default {
     selections: {},
     labels: {} // for human readable string
   },
-  filterLabelCache: [] // needed to filter human readable string > can be rewritten to use the collectiondictionary.
+  filterLabelCache: [], // needed to filter human readable string > can be rewritten to use the collectiondictionary.
+  viewMode: 'biobankview'
 }

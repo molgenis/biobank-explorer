@@ -11,6 +11,9 @@
         <div class="biobank-number-report-container">
           <small class="biobank-number-report">
             <em>
+              <template v-if="foundNetworks > 0">
+                {{ foundNetworks }} networks with
+              </template>
               {{ foundBiobanks }} organisations with
               {{ parentCollections.length }} collection(s)
               <template v-if="numberOfSubCollections > 0">
@@ -50,7 +53,7 @@ import { mapGetters } from 'vuex'
 
 export default {
   computed: {
-    ...mapGetters(['foundBiobanks', 'foundCollectionIds', 'parentCollections']),
+    ...mapGetters(['foundNetworks', 'foundBiobanks', 'foundCollectionIds', 'parentCollections']),
     numberOfSubCollections () {
       return this.foundCollectionIds.length - this.parentCollections.length
     }

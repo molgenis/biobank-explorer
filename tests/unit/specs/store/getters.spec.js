@@ -21,6 +21,7 @@ describe('store', () => {
         expect(getters.rsql(state)).toEqual('')
       })
     })
+
     describe('biobankRsql', () => {
       it('should transform the biobank filters to rsql', () => {
         state.filters.selections.country = ['AT', 'BE']
@@ -108,7 +109,6 @@ describe('store', () => {
             collections: [{ id: 'col-3', sub_collections: [{ id: 'col-4', sub_collections: [] }] }]
           }])
         })
-
       it('should return the biobanks in the order they appear in collectionInfo', () => {
         const state = {
           biobanks: {
@@ -127,6 +127,10 @@ describe('store', () => {
           { id: '1', name: 'B', collections: [{ id: 'col-1', sub_collections: [] }] }
         ])
       })
+    })
+
+    it('should return the number of foundBiobanks', () => {
+      expect(getters.foundBiobanks(undefined, getters)).toBe(2)
     })
 
     it('should return the total amount of collections for found biobanks', () => {
@@ -154,6 +158,7 @@ describe('store', () => {
       const otherGetters = { biobanks }
       expect(getters.getFoundBiobankIds(state, otherGetters)).toStrictEqual(['1', '2', '3'])
     })
+
     it('should return an array of biobank Ids when only ids are present', () => {
       const biobanks = ['1', '2', '3']
 
@@ -162,18 +167,40 @@ describe('store', () => {
     })
 
     describe('loading', () => {
-      it('should be false if both biobankIds and collectionInfo are present', () => {
+      it('should be false in biobankview if both biobankIds and collectionInfo are present', () => {
         const state = {
+          viewMode: 'biobankview',
           biobankIds: ['biobank1'],
           collectionInfo: [{ collectionId: 'col-2', biobankId: 'biobank1' }]
         }
         expect(getters.loading(state)).toBe(false)
       })
 
-      it('should be true if biobankIds are missing', () => {
+      it('should be true in biobankview if biobankIds are missing', () => {
         const state = {
+          viewMode: 'biobankview',
           biobankIds: undefined,
           collectionInfo: [{ collectionId: 'col-2', biobankId: 'biobank1' }]
+        }
+        expect(getters.loading(state)).toBe(true)
+      })
+
+      it('should be false in networkview if both biobankIds and collectionInfo are present', () => {
+        const state = {
+          viewMode: 'networkview',
+          biobankIds: ['biobank1'],
+          collectionInfo: [{ collectionId: 'col-2', biobankId: 'biobank1' }],
+          networkIds: ['network1']
+        }
+        expect(getters.loading(state)).toBe(false)
+      })
+
+      it('should be true in biobankview if biobankIds are missing', () => {
+        const state = {
+          viewMode: 'networkview',
+          biobankIds: ['biobank1'],
+          collectionInfo: [{ collectionId: 'col-2', biobankId: 'biobank1' }],
+          networkIds: undefined
         }
         expect(getters.loading(state)).toBe(true)
       })
@@ -199,8 +226,17 @@ describe('store', () => {
           covid19: ['covid19'],
           dataType: ['BIOLOGICAL_SAMPLES', 'GENEALOGICAL_RECORDS']
         }
-
-        const actual = getters.activeFilters(state)
+        const filterDefinitions = [
+          { name: 'materials' },
+          { name: 'country' },
+          { name: 'type' },
+          { name: 'covid19' },
+          { name: 'dataType' },
+          { name: 'collection_quality' },
+          { name: 'biobank_quality' },
+          { name: 'search' }
+        ]
+        const actual = getters.activeFilters(state, { filterDefinitions: filterDefinitions })
         const expected = {
           materials: ['PLASMA'],
           country: ['AT'],
@@ -219,8 +255,27 @@ describe('store', () => {
         const expected = {
           diagnosis_available: ['urn:miriam:icd:C00-C97']
         }
+        const filterDefinitions = [
+          { name: 'diagnosis_available' }
+        ]
         state.filters.selections = expected
-        const actual = getters.activeFilters(state)
+        const actual = getters.activeFilters(state, { filterDefinitions: filterDefinitions })
+        expect(actual).toStrictEqual(expected)
+      })
+      it('should retrieve an object of filters without the filters not defined in filterDefinitions', () => {
+        const expected = {
+          materials: ['PLASMA']
+        }
+        const stateFilters = {
+          materials: ['PLASMA'],
+          biobank_network: ['COVID-19']
+        }
+        const filterDefinitions = [
+          { name: 'materials' }
+        ]
+        state.filters.selections = stateFilters
+        state.viewMode = 'networkview'
+        const actual = getters.activeFilters(state, { filterDefinitions: filterDefinitions })
         expect(actual).toStrictEqual(expected)
       })
     })
@@ -284,6 +339,63 @@ describe('store', () => {
         const result = getters.foundCollectionsAsSelection(state, { parentCollections, foundCollectionIds, collectionDictionary })
 
         expect(result).toStrictEqual([{ label: 'Collection A', value: 'col-1' }])
+      })
+    })
+
+    describe('selectedBiobankInNetwork', () => {
+      const state = {
+        filters: {
+          selections: {
+            biobank_network: ['n1', 'n2']
+          }
+        }
+      }
+      it('should return the value of biobank_network filter', () => {
+        const selectedBiobankInNetwork = getters.selectedBiobankInNetwork(state)
+        expect(selectedBiobankInNetwork).toStrictEqual(['n1', 'n2'])
+      })
+    })
+
+    describe('networks', () => {
+      it('should return empty list when loading', () => {
+        state = {}
+        expect(getters.networks(state, { loading: true })).toStrictEqual([])
+      })
+      it('should return a list of networks with the list of its biobanks', () => {
+        state.networkIds = ['n1', 'n2', 'n3']
+        state.networks = {
+          n1: { id: 'n1', name: 'network 1' },
+          n2: { id: 'n2', name: 'network 2' },
+          n3: { id: 'n3', name: 'network 3' }
+        }
+        state.biobankInfo = {
+          b1: { id: 'b1', name: 'biobank one', networkIds: ['n1', 'n3'] },
+          b2: { id: 'b2', name: 'biobank two', networkIds: ['n1', 'n2'] },
+          b3: { id: 'b3', name: 'biobank three', networkIds: ['n1'] },
+          b4: { id: 'b4', name: 'biobank four', networkIds: ['n2', 'n3'] }
+        }
+        const biobanks = ['b1', 'b2', 'b3', { id: 'b4', collections: { id: 'col-1' } }]
+        const otherGetters = { loading: false, biobanks: biobanks }
+        const expected = [
+          { id: 'n1', name: 'network 1', biobanks: ['b1', 'b2', 'b3'] },
+          { id: 'n2', name: 'network 2', biobanks: ['b2', { id: 'b4', collections: { id: 'col-1' } }] },
+          { id: 'n3', name: 'network 3', biobanks: ['b1', { id: 'b4', collections: { id: 'col-1' } }] }
+        ]
+
+        expect(getters.networks(state, otherGetters)).toStrictEqual(expected)
+      })
+    })
+
+    describe('foundNetworks', () => {
+      it('should return the number of networks found', () => {
+        state.networkIds = ['n1', 'n2', 'n3']
+        expect(getters.foundNetworks(state)).toBe(3)
+      })
+    })
+
+    describe('viewMode', () => {
+      it('should return the number of networks found', () => {
+        expect(getters.viewMode(state)).toBe('biobankview')
       })
     })
   })

@@ -1,12 +1,18 @@
-import { createRSQLQuery, createBiobankRSQLQuery, filterCollectionTree } from './helpers'
-import { groupCollectionsByBiobankId } from '../utils/grouping'
+import { createRSQLQuery, createBiobankRSQLQuery, createNetworkRSQLQuery, filterCollectionTree, getActiveFilters } from './helpers'
+import { groupCollectionsByBiobankId, groupBiobanksByNetworkId } from '../utils/grouping'
 import filterDefinitions from '../utils/filterDefinitions'
 
 export default {
   filterDefinitions,
   bookmarkMappedToState: state => state.bookmarkMappedToState,
-  loading: ({ collectionInfo, biobankIds }) => !(biobankIds && collectionInfo),
-  biobanks: ({ collectionInfo, biobankIds, biobanks }, { loading, rsql }) => {
+  loading: ({ viewMode, collectionInfo, biobankIds, networkIds }) => {
+    if (viewMode === 'biobankview') {
+      return !(biobankIds && collectionInfo)
+    } else {
+      return !(networkIds && biobankIds && collectionInfo)
+    }
+  },
+  biobanks: ({ collectionInfo, biobankIds, biobanks }, { loading, rsql, biobankRsql }) => {
     if (loading) {
       return []
     }
@@ -91,18 +97,23 @@ export default {
 
     return allIdsPresentInSelection
   },
+  selectedBiobankInNetwork: state => state.filters.selections.biobank_network,
   selectedBiobankQuality: state => state.filters.selections.biobank_quality,
   selectedCollectionQuality: state => {
     return state.filters.selections.collection_quality
   },
   rsql: createRSQLQuery,
   biobankRsql: createBiobankRSQLQuery,
+  networkRsql: createNetworkRSQLQuery,
   resetPage: state => !state.isPaginating,
   showCountryFacet: state => state.showCountryFacet,
   /**
    * Get map of active filters
    */
-  activeFilters: state => state.filters.selections,
+  activeFilters: (state, { filterDefinitions }) => {
+    // Select only the filters that are to be displayed in the current view mode
+    return getActiveFilters(state, filterDefinitions)
+  },
   getErrorMessage: state => {
     if (!state.error) {
       return undefined
@@ -114,5 +125,26 @@ export default {
       return state.error.message
     }
     return 'Something went wrong'
-  }
+  },
+  networks: ({ biobankInfo, networks, networkIds }, { biobanks, loading }) => {
+    if (loading) {
+      return []
+    }
+
+    const biobanksByNetwork = groupBiobanksByNetworkId(biobanks, biobankInfo)
+    return networkIds.map(networkId => {
+      if (!Object.prototype.hasOwnProperty.call(networks, networkId)) {
+        return networkId
+      }
+      const network = networks[networkId]
+      return {
+        ...network,
+        biobanks: biobanksByNetwork[networkId] || []
+      }
+    })
+  },
+  foundNetworks: ({ networkIds }) => {
+    return networkIds ? networkIds.length : 0
+  },
+  viewMode: ({ viewMode }) => viewMode
 }

@@ -13,6 +13,9 @@ jest.mock('@molgenis/molgenis-api-client', () => {
 })
 
 describe('store', () => {
+  beforeEach(() => {
+    api.get.mockReset()
+  })
   describe('actions', () => {
     describe('GetBiobanks', () => {
       it('should retrieve biobanks from the server and store them in state', (done) => {
@@ -32,6 +35,15 @@ describe('store', () => {
           ]
         }
         utils.testAction(actions.GetBiobanks, options, done)
+      })
+
+      it('should commit an error if the server response is bad', async () => {
+        const error = new Error('something wrong')
+        const commit = jest.fn()
+        api.get.mockRejectedValueOnce(error)
+
+        await actions.GetBiobanks({ commit }, ['b1', 'b2'])
+        expect(commit.mock.calls[0]).toEqual(['SetError', error])
       })
     })
 
@@ -75,8 +87,8 @@ describe('store', () => {
       it('should retrieve biobank ids from the server based on biobank filters', async () => {
         const response = {
           items: [
-            { data: { id: 'biobank-1' } },
-            { data: { id: 'biobank-2' } }
+            { data: { id: 'biobank-1', name: 'Biobank 1', network: ['Network 1', 'Network 2'] } },
+            { data: { id: 'biobank-2', name: 'Biobank 2', network: ['Network 1', 'Network 4'] } }
           ]
         }
         api.get.mockResolvedValueOnce(response)
@@ -85,7 +97,119 @@ describe('store', () => {
         const commit = jest.fn()
 
         await actions.GetBiobankIds({ commit, getters })
-        expect(commit.mock.calls[1]).toEqual(['SetBiobankIds', ['biobank-1', 'biobank-2']])
+        expect(commit.mock.calls[2]).toEqual(['SetBiobankIds', ['biobank-1', 'biobank-2']])
+        expect(commit.mock.calls[3]).toEqual(['SetBiobankInfo', response])
+      })
+
+      it('should set an error if something wrong happens in rest call', async () => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+
+        const getters = { biobankRsql: 'covid19=in=(covid19)' }
+        const commit = jest.fn()
+
+        await actions.GetBiobankIds({ commit, getters })
+        expect(commit.mock.calls[2]).toEqual(['SetError', error])
+      })
+    })
+
+    describe('GetBiobankIdsInNetwork', () => {
+      it('should retrieve biobank ids from the server based biobank_network filter', async () => {
+        const response = {
+          items: [
+            { data: { id: 'biobank-1', name: 'Biobank 1', network: ['Network 1', 'Network 2'] } },
+            { data: { id: 'biobank-2', name: 'Biobank 2', network: ['Network 1', 'Network 4'] } }
+          ]
+        }
+        api.get.mockResolvedValueOnce(response)
+
+        const state = {
+          filters: {
+            selections: {
+              biobank_network: ['n1', 'n2']
+            }
+          }
+        }
+        const commit = jest.fn()
+
+        await actions.GetBiobankIdsInNetwork({ state, commit })
+        expect(api.get.mock.calls[0]).toEqual(['/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(n1,n2)'])
+        expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', response])
+      })
+
+      it('should update the collection filter when in network view', async () => {
+        const response = {
+          items: [
+            { data: { id: 'biobank-1', name: 'Biobank 1', network: ['Network 1', 'Network 2'] } },
+            { data: { id: 'biobank-2', name: 'Biobank 2', network: ['Network 1', 'Network 4'] } }
+          ]
+        }
+        api.get.mockResolvedValueOnce(response)
+
+        const state = {
+          filters: {
+            selections: {
+              biobank_network: ['n1', 'n2']
+            },
+            labels: {
+              biobank_network: ['network 1', 'network 2']
+            }
+          },
+          viewMode: 'networkview'
+        }
+        const commit = jest.fn()
+
+        await actions.GetBiobankIdsInNetwork({ state, commit })
+        expect(api.get.mock.calls[0]).toEqual(['/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(n1,n2)'])
+        expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', response])
+        expect(commit.mock.calls[1]).toEqual(
+          ['UpdateFilter', { name: 'collection_network', value: [{ text: 'network 1', value: 'n1' }, { text: 'network 2', value: 'n2' }], router: undefined }])
+      })
+
+      it('should retrieve set the biobank ids in a network to empty lists when the biobank_network filter is empty', () => {
+        const state = {
+          filters: {
+            selections: {
+              biobank_network: []
+            }
+          }
+        }
+        const commit = jest.fn()
+
+        actions.GetBiobankIdsInNetwork({ state, commit })
+        expect(api.get).not.toHaveBeenCalled()
+        expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', []])
+      })
+
+      it('should retrieve set the biobank ids in a network to empty lists when the biobank_network filter undefined', () => {
+        const state = {
+          filters: {
+            selections: {}
+          }
+        }
+        const commit = jest.fn()
+
+        actions.GetBiobankIdsInNetwork({ state, commit })
+        expect(api.get).not.toHaveBeenCalled()
+        expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', []])
+      })
+
+      it('should set an error if something wrong happens i rest call', async () => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+
+        const state = {
+          filters: {
+            selections: {
+              biobank_network: ['n1', 'n2']
+            }
+          }
+        }
+        const commit = jest.fn()
+
+        await actions.GetBiobankIdsInNetwork({ state, commit })
+        expect(api.get.mock.calls[0]).toEqual(['/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(n1,n2)'])
+        expect(commit.mock.calls[0]).toEqual(['SetError', error])
       })
     })
 
@@ -107,6 +231,51 @@ describe('store', () => {
         expect(commit.mock.calls[1]).toEqual(['SetCollectionInfo', response])
         expect(commit.mock.calls[2]).toEqual(['SetDictionaries', response])
         expect(commit.mock.calls[3]).toEqual(['MapQueryToState'])
+      })
+
+      it('should set an error if something wrong happens in rest call', async () => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+        const getters = { rsql: 'country=in=(NL,BE)' }
+        const commit = jest.fn()
+
+        await actions.GetCollectionInfo({ commit, getters })
+        expect(commit.mock.calls[1]).toEqual(['SetError', error])
+      })
+    })
+
+    describe('GetNetworkIds', () => {
+      const response = {
+        items: [
+          { data: { id: 'n1', name: 'cool network 1' } },
+          { data: { id: 'n2', name: 'cool network 2' } }
+        ]
+      }
+
+      const networkFilters = [
+        { text: 'cool network 1', value: 'n1' },
+        { text: 'cool network 2', value: 'n2' }
+      ]
+
+      it('should set the list of network ids, network dictionary and apply filters by network for biobanks and collections ', async () => {
+        api.get.mockResolvedValueOnce(response)
+        const getters = { networkRsql: 'commons_sops==true' }
+        const commit = jest.fn()
+        await actions.GetNetworkInfo({ commit, getters })
+        expect(commit.mock.calls[0]).toEqual(['SetNetworkIds', undefined])
+        expect(commit.mock.calls[1]).toEqual(['SetNetworks', response.items.map(network => network.data)])
+        expect(commit.mock.calls[2]).toEqual(['SetNetworkIds', response.items.map(network => network.data.id)])
+        expect(commit.mock.calls[3]).toEqual(['UpdateFilter', { name: 'biobank_network', value: networkFilters, router: undefined }])
+      })
+
+      it('should set an error if something wrong happens in rest call', async () => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+        const getters = { networkRsql: 'commons_sops==true' }
+        const commit = jest.fn()
+        await actions.GetNetworkInfo({ commit, getters })
+        expect(commit.mock.calls[0]).toEqual(['SetNetworkIds', undefined])
+        expect(commit.mock.calls[1]).toEqual(['SetError', error])
       })
     })
 
@@ -150,7 +319,23 @@ describe('store', () => {
 
         utils.testAction(actions.GetBiobankReport, options, done)
       })
+
+      it('should set an error if something wrong happens in rest call', done => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+
+        const options = {
+          payload: '001',
+          expectedMutations: [
+            { type: 'SetLoading', payload: true },
+            { type: 'SetError', payload: error },
+            { type: 'SetLoading', payload: false }
+          ]
+        }
+        utils.testAction(actions.GetBiobankReport, options, done)
+      })
     })
+
     describe('GetCollectionReport', () => {
       it('should retrieve a single collection entity from the server based on a collection id and store it in the state', done => {
         const response = {
@@ -169,6 +354,21 @@ describe('store', () => {
           expectedMutations: [
             { type: 'SetLoading', payload: true },
             { type: 'SetCollectionReport', payload: response },
+            { type: 'SetLoading', payload: false }
+          ]
+        }
+        utils.testAction(actions.GetCollectionReport, options, done)
+      })
+
+      it('should set an error if something wrong happens in rest call', done => {
+        const error = new Error('something wrong')
+        api.get.mockRejectedValueOnce(error)
+
+        const options = {
+          payload: '001',
+          expectedMutations: [
+            { type: 'SetLoading', payload: true },
+            { type: 'SetError', payload: error },
             { type: 'SetLoading', payload: false }
           ]
         }

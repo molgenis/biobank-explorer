@@ -18,11 +18,11 @@ export default {
     ...mapMutations(['UpdateAllFilters']),
     changeAllFilters (value) {
       this.UpdateAllFilters(value)
-      createBookmark(this.$router, value, this.selectedCollections)
+      createBookmark(this.$router, this.activeFilters, this.selectedCollections)
     }
   },
   computed: {
-    ...mapGetters(['activeFilters', 'filterDefinitions', 'selectedCollections']),
+    ...mapGetters(['showCountryFacet', 'activeFilters', 'filterDefinitions', 'selectedCollections']),
     filters () {
       return this.filterDefinitions.filter((facet) => {
         // config option showCountryFacet is used to toggle Country facet

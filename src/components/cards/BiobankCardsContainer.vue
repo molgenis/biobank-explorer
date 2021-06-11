@@ -1,11 +1,11 @@
 <template>
   <div class="biobank-cards-container">
-    <div v-if="!loading && foundBiobanks > 0">
+    <div v-if="!loading && numberOfBiobanks > 0">
       <b-pagination
-        v-if="foundBiobanks > pageSize"
+        v-if="numberOfBiobanks > pageSize"
         size="md"
         align="center"
-        :total-rows="foundBiobanks"
+        :total-rows="numberOfBiobanks"
         v-model="currentPage"
         :per-page="pageSize"
       ></b-pagination>
@@ -13,20 +13,20 @@
         v-for="biobank in biobanksShown"
         :key="biobank.id || biobank"
         :biobank="biobank"
-        :initCollapsed="(biobanksShown[0].id !== biobank.id || biobanksShown[0] !== biobank)">
+        :initCollapsed="true">
       </biobank-card>
 
       <b-pagination
-        v-if="foundBiobanks > pageSize"
+        v-if="numberOfBiobanks > pageSize"
         size="md"
         align="center"
-        :total-rows="foundBiobanks"
+        :total-rows="numberOfBiobanks"
         v-model="currentPage"
         :per-page="pageSize"
       ></b-pagination>
     </div>
 
-    <div v-else-if="!loading && foundBiobanks === 0" class="status-text">
+    <div v-else-if="!loading && numberOfBiobanks === 0" class="status-text">
       <h4>No biobanks were found</h4>
     </div>
 
@@ -63,23 +63,34 @@ export default {
       pageSize: 10
     }
   },
+  props: {
+    biobanks: {
+      type: [Array]
+    }
+  },
   methods: {
     ...mapActions(['GetBiobanks'])
   },
   computed: {
-    ...mapGetters([
-      'biobanks',
-      'foundBiobanks',
-      'loading'
-    ]),
+    ...mapGetters({
+      globalBiobanks: 'biobanks',
+      foundBiobanks: 'foundBiobanks',
+      loading: 'loading',
+      viewMode: 'viewMode'
+    }),
     biobanksShown () {
-      return this.loading ? [] : this.biobanks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
+      const biobanks = this.$props.biobanks ? this.$props.biobanks : this.globalBiobanks
+      return this.loading ? [] : biobanks.slice(this.pageSize * (this.currentPage - 1), this.pageSize * this.currentPage)
     },
     biobankIds () {
-      return this.loading ? [] : this.biobanks.map(it => it.id || it)
+      const biobanks = this.$props.biobanks ? this.$props.biobanks : this.globalBiobanks
+      return this.loading ? [] : biobanks.map(it => it.id || it)
     },
     biobankIdsToFetch () {
       return this.biobanksShown.filter(it => typeof it === 'string')
+    },
+    numberOfBiobanks () {
+      return this.$props.biobanks ? this.$props.biobanks.length : this.foundBiobanks
     }
   },
   components: {
@@ -93,9 +104,15 @@ export default {
       }
     },
     biobankIdsToFetch (value) {
-      if (value.length) {
+      if (value.length > 0) {
         this.GetBiobanks(value)
       }
+    }
+  },
+  mounted () {
+    // Forces fetching of first set of biobanks since, in networkview, the first set of biobanksIds is not fetched automatically
+    if (this.viewMode === 'networkview' && this.biobankIdsToFetch.length > 0) {
+      this.GetBiobanks(this.biobankIdsToFetch)
     }
   }
 }

@@ -52,7 +52,8 @@
 
       <div class="row">
         <div class="col-md-12">
-          <biobank-cards-container></biobank-cards-container>
+          <network-cards-container v-if="mode === 'networkview'"></network-cards-container>
+          <biobank-cards-container v-else></biobank-cards-container>
         </div>
       </div>
     </div>
@@ -163,6 +164,7 @@
 <script>
 import { CartSelectionToast } from '@molgenis-ui/components-library'
 import BiobankCardsContainer from './cards/BiobankCardsContainer'
+import NetworkCardsContainer from './cards/NetworkCardsContainer'
 import FilterContainer from './filters/FilterContainer'
 import ResultHeader from './ResultHeader'
 import { mapGetters, mapActions, mapState, mapMutations } from 'vuex'
@@ -171,8 +173,15 @@ import CollectionSelectAll from '@/components/buttons/CollectionSelectAll.vue'
 
 export default {
   name: 'biobank-explorer-container',
+  props: {
+    mode: {
+      type: String,
+      default: 'biobankview'
+    }
+  },
   components: {
     BiobankCardsContainer,
+    NetworkCardsContainer,
     FilterContainer,
     ResultHeader,
     CartSelectionToast,
@@ -188,10 +197,12 @@ export default {
     ...mapGetters([
       'rsql',
       'biobankRsql',
+      'networkRsql',
       'loading',
       'foundCollectionIds',
       'activeFilters',
       'collectionsInPodium',
+      'selectedBiobankInNetwork',
       'selectedBiobankQuality',
       'selectedCollectionQuality',
       'selectedCollections',
@@ -230,6 +241,10 @@ export default {
     }
   },
   watch: {
+    selectedBiobankInNetwork: {
+      immediate: false,
+      handler: 'GetBiobankIdsInNetwork'
+    },
     selectedBiobankQuality: {
       immediate: true,
       handler: 'GetBiobankIdsForQuality'
@@ -239,12 +254,16 @@ export default {
       handler: 'GetCollectionIdsForQuality'
     },
     rsql: {
-      immediate: true,
+      immediate: false,
       handler: 'GetCollectionInfo'
     },
     biobankRsql: {
-      immediate: true,
+      immediate: false,
       handler: 'GetBiobankIds'
+    },
+    networkRsql: {
+      immediate: false,
+      handler: 'GetNetworkInfo'
     },
     isPodium: {
       immediate: true,
@@ -252,13 +271,15 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['RemoveCollectionsFromSelection', 'MapQueryToState']),
+    ...mapMutations(['RemoveCollectionsFromSelection', 'MapQueryToState', 'SetViewMode']),
     ...mapActions([
       'GetCollectionInfo',
       'GetBiobankIds',
+      'GetNetworkInfo',
       'GetPodiumCollections',
       'GetBiobankIdsForQuality',
-      'GetCollectionIdsForQuality'
+      'GetCollectionIdsForQuality',
+      'GetBiobankIdsInNetwork'
     ]),
     isNonCommercialCollection (collectionId) {
       return this.nonCommercialCollections.indexOf(collectionId) >= 0
@@ -327,6 +348,13 @@ export default {
     // check if collections have been added off-screen.
     if (this.selectedCollections.length) {
       createBookmark(this.$router, this.activeFilters, this.selectedCollections)
+    }
+    this.SetViewMode(this.mode)
+    if (this.mode === 'networkview') {
+      this.GetNetworkInfo()
+    } else {
+      this.GetCollectionInfo()
+      this.GetBiobankIds()
     }
   }
 }

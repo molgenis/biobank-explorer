@@ -35,10 +35,12 @@ describe('store', () => {
         expect(state.filters.selections.biobank_network).toStrictEqual([])
       })
     })
+
     describe('UpdateFilter', () => {
       it('should update the list of filters for a specific state key and map its text as label', () => {
         const countries = [{ value: 'NL', text: 'Netherlands' }, { value: 'BE', text: 'Belgium' }]
-        mutations.UpdateFilter(state, { name: 'country', value: countries, router: [] })
+        // in this context the important thing for filterDefinitions is viewModes === undefined
+        mutations.UpdateFilter(state, { name: 'country', value: countries, filterDefinitions: [{ name: 'country' }], router: [] })
 
         expect(state.filters.selections.country).toStrictEqual(['NL', 'BE'])
         expect(state.filters.labels.country).toStrictEqual(['Netherlands', 'Belgium'])
@@ -142,6 +144,55 @@ describe('store', () => {
         mutations.SetBiobanks(state, biobanks)
 
         expect(state.biobanks.biobank1).toStrictEqual(expected)
+      })
+    })
+
+    describe('SetBiobankIds', () => {
+      it('should set the biobank ids list', () => {
+        mutations.SetBiobankIds(state, ['b1', 'b2'])
+        expect(state.biobankIds).toStrictEqual(['b1', 'b2'])
+      })
+    })
+
+    describe('SetBiobankInfo', () => {
+      it('should set the biobankInfo object to undefined', () => {
+        mutations.SetBiobankInfo(state, undefined)
+        expect(state.biobankInfo).toBe(undefined)
+      })
+      it('should set the biobankInfo objects where keys are bioankIds and values are objects with some biobank info (id, name and networkIds)', () => {
+        const biobanksResponse = {
+          items: [
+            { data: { id: 'b1', name: 'biobank 1', network: { items: [{ data: { id: 'n1' } }] } } },
+            { data: { id: 'b2', name: 'biobank 2', network: { items: [{ data: { id: 'n1' } }] } } }
+          ]
+        }
+        mutations.SetBiobankInfo(state, biobanksResponse)
+        expect(state.biobankInfo).toStrictEqual({
+          b1: { id: 'b1', name: 'biobank 1', networkIds: ['n1'] },
+          b2: { id: 'b2', name: 'biobank 2', networkIds: ['n1'] }
+        })
+      })
+    })
+
+    describe('SetCollectionInfo', () => {
+      it('should set the collectionInfo object to undefined', () => {
+        mutations.SetCollectionInfo(state, undefined)
+        expect(state.collectionInfo).toBe(undefined)
+      })
+      it('should set the collectionInfo list. Every item contains information about a collection', () => {
+        const collectionResponse = {
+          items: [
+            { data: { id: 'col1', label: 'collection 1 label', name: 'collection 1 name', biobank: { data: { id: 'b1' } }, network: { items: [{ data: { id: 'n1' } }] } } },
+            { data: { id: 'col2', name: 'collection 2', biobank: { data: { id: 'b2' } }, network: { items: [{ data: { id: 'n2' } }] }, parent_collection: undefined } },
+            { data: { id: 'col3', name: 'collection 3', biobank: { data: { id: 'b2' } }, network: { items: [{ data: { id: 'n2' } }] }, parent_collection: 'col2' } }
+          ]
+        }
+        mutations.SetCollectionInfo(state, collectionResponse)
+        expect(state.collectionInfo).toStrictEqual([
+          { collectionId: 'col1', collectionName: 'collection 1 label', biobankId: 'b1', networkIds: ['n1'], isSubcollection: false },
+          { collectionId: 'col2', collectionName: 'collection 2', biobankId: 'b2', networkIds: ['n2'], isSubcollection: false },
+          { collectionId: 'col3', collectionName: 'collection 3', biobankId: 'b2', networkIds: ['n2'], isSubcollection: true }
+        ])
       })
     })
 
@@ -380,13 +431,6 @@ describe('store', () => {
       })
     })
 
-    describe('SetLoading', () => {
-      it('should set the loading boolean in the state', () => {
-        mutations.SetLoading(state, true)
-        expect(state.isLoading).toStrictEqual(true)
-      })
-    })
-
     describe('Negotiator logic', () => {
       it('should set the Podium boolean if any row in the negotiator config includes podium', () => {
         mutations.SetPodium(state, { items: [{ id: 'podium-identifier' }] })
@@ -424,6 +468,47 @@ describe('store', () => {
         mutations.SetNegotiatorEntities(state, response)
         expect(state.negotiatorCollectionEntityId).toStrictEqual('table_for_collection')
         expect(state.negotiatorBiobankEntityId).toStrictEqual('table_for_biobank')
+      })
+    })
+
+    describe('SetNetworkIds', () => {
+      it('should set the network ids list', () => {
+        mutations.SetNetworkIds(state, ['n1', 'n2', 'n3'])
+        expect(state.networkIds).toStrictEqual(['n1', 'n2', 'n3'])
+      })
+    })
+
+    describe('SetNetworks', () => {
+      it('should set the network ids list', () => {
+        mutations.SetNetworks(state, [{ id: 'n1', name: 'network1' }, { id: 'n2', name: 'network2' }])
+        expect(state.networks).toStrictEqual({
+          n1: { id: 'n1', name: 'network1' },
+          n2: { id: 'n2', name: 'network2' }
+        })
+      })
+    })
+
+    describe('SetNetworks', () => {
+      it('should set the networks object where keys are network ids and values are the networks objects', () => {
+        mutations.SetNetworks(state, [{ id: 'n1', name: 'network1' }, { id: 'n2', name: 'network2' }])
+        expect(state.networks).toStrictEqual({
+          n1: { id: 'n1', name: 'network1' },
+          n2: { id: 'n2', name: 'network2' }
+        })
+      })
+    })
+
+    describe('SetViewMode', () => {
+      it('should set the viewmode to the value in input if viewmode in allowed values', () => {
+        mutations.SetViewMode(state, 'networkview')
+        expect(state.viewMode).toEqual('networkview')
+        mutations.SetViewMode(state, 'biobankview')
+        expect(state.viewMode).toEqual('biobankview')
+      })
+
+      it('should not set the viewmode if the value in input is not allowed', () => {
+        mutations.SetViewMode(state, 'unknown')
+        expect(state.viewMode).toEqual('biobankview')
       })
     })
   })

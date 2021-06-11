@@ -47,11 +47,16 @@ export const getBaseUrl = () => {
   return `${window.location.protocol}//${window.location.host}${baseUrl}/#`
 }
 
+export const arrayEqual = (a, b) => {
+  return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((val, index) => val === b[index])
+}
+
 export default {
   getUniqueIdArray,
   createInQuery,
   createComparisons,
   removeFilterFromFilterArrayById,
   qualityAttributeSelector,
-  getBaseUrl
+  getBaseUrl,
+  arrayEqual
 }

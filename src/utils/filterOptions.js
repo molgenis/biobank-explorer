@@ -45,3 +45,19 @@ export const collaborationTypeFilterOptions = () => {
     resolve([{ text: 'Commercial use', value: 'true' }, { text: 'Non-commercial use', value: 'false' }])
   })
 }
+
+export const commonNetworkFilterOptions = () => {
+  return () => new Promise((resolve) => {
+    resolve([
+      { text: 'Common SOPs', value: 'common_sops' },
+      { text: 'Common Collection Focus', value: 'common_collection_focus' },
+      { text: 'Common Charter', value: 'common_charter' },
+      { text: 'Common Data Access Policy', value: 'common_data_access_policy' },
+      { text: 'Common Sample Access Policy', value: 'common_sample_access_policy' },
+      { text: 'Common MTA', value: 'common_mta' },
+      { text: 'Common Image Access Policy', value: 'common_image_access_policy' },
+      { text: 'Common Image MTA', value: 'common_image_mta' },
+      { text: 'Common URL', value: 'common_url' }
+    ])
+  })
+}
