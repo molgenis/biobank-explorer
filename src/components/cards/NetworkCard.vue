@@ -5,7 +5,12 @@
     >
       <div class="row">
         <div class="collapse-column" v-if="!loading">
-          <div class="fa fa-plus collapse-button" @click.prevent="collapsed=!collapsed"></div>
+          <font-awesome-icon
+            icon="caret-right"
+            :style="iconStyle"
+            class="collapse-button mr-2"
+            @click.prevent="collapsed=!collapsed"
+          />
         </div>
         <div class="col-md-5 d-flex flex-column" v-if="!loading">
           <div class="mb-2">
@@ -69,6 +74,12 @@ export default {
   computed: {
     loading () {
       return typeof this.network === 'string'
+    },
+    iconStyle () {
+      return {
+        transform: `rotate(${this.collapsed ? 0 : 90}deg)`,
+        transition: 'transform 0.2s'
+      }
     }
   }
 }
