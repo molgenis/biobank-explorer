@@ -1,21 +1,21 @@
 <template>
-  <div
-    :class="['card network-card']"
-  >
+  <div class="card network-card">
     <div
-      class="card-header network-card-header bg-warning"
-      @click.prevent="collapsed=!collapsed"
+      class="card-header network-card-header"
     >
       <div class="row">
+        <div class="collapse-column" v-if="!loading">
+          <div class="fa fa-plus collapse-button" @click.prevent="collapsed=!collapsed"></div>
+        </div>
         <div class="col-md-5 d-flex flex-column" v-if="!loading">
           <div class="mb-2">
             <h5>
               <router-link :to="'/network/' +  network.id">
-                <span
-                  class="fa fa-table network-icon mr-2 icon-alignment"
-                  aria-hidden="true"
-                  aria-labelledby="network-name"
-                ></span>
+                <font-awesome-icon
+                  transform="shrink-3"
+                  class="mr-2"
+                  :icon="['fas', 'project-diagram']"
+                />
               </router-link>
               <span id="network-name">{{ network.name }}</span>
             </h5>
@@ -75,21 +75,23 @@ export default {
 </script>
 
 <style>
+.collapse-column {
+  margin-left: 10px;
+  margin-right: 6px;
+  display: table-cell !important;
+  vertical-align: middle;
+}
+
+.collapse-button {
+  cursor: pointer;
+}
+
 .network-card {
   margin-bottom: 1em;
 }
 
 .network-card-header {
-  background-color: #f5f5f5;
-}
-
-.network-card-header:hover {
-  cursor: pointer;
   background-color: #e4e4e4;
-}
-
-.network-icon {
-  color: white;
 }
 
 .network-icon:hover {
