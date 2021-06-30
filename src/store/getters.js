@@ -12,7 +12,7 @@ export default {
       return !(networkIds && biobankIds && collectionInfo)
     }
   },
-  biobanks: ({ collectionInfo, biobankIds, biobanks }, { loading, rsql, biobankRsql }) => {
+  biobanks: ({ collectionInfo, biobankIds, biobanks }, { loading, rsql }) => {
     if (loading) {
       return []
     }

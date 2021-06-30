@@ -350,11 +350,11 @@ export default {
       createBookmark(this.$router, this.activeFilters, this.selectedCollections)
     }
     this.SetViewMode(this.mode)
+    this.GetBiobankIds()
     if (this.mode === 'networkview') {
       this.GetNetworkInfo()
     } else {
       this.GetCollectionInfo()
-      this.GetBiobankIds()
     }
   }
 }

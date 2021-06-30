@@ -147,6 +147,15 @@ export default {
       isSubcollection: item.data.parent_collection !== undefined
     }))
     state.collectionInfo = collectionInfo
+    // If a collection is part of a network it means that its biobank is part of it.
+    // This adds the network ids of the collection to the biobank if it doesn't already have them
+    collectionInfo.forEach(collection => {
+      state.biobankInfo[collection.biobankId].networkIds =
+        state.biobankInfo[collection.biobankId].networkIds
+          .concat(collection.networkIds
+            .filter(nid => !state.biobankInfo[collection.biobankId].networkIds.includes(nid))
+          )
+    })
   },
   /**
    * Store a single biobank in the state for showing a biobank report
