@@ -5,11 +5,11 @@ import filterDefinitions from '../utils/filterDefinitions'
 export default {
   filterDefinitions,
   bookmarkMappedToState: state => state.bookmarkMappedToState,
-  loading: ({ viewMode, collectionInfo, biobankIds, networkIds }) => {
+  loading: ({ viewMode, collectionInfo, biobankIds, networkIds, biobankInANetwork }) => {
     if (viewMode === 'biobankview') {
       return !(biobankIds && collectionInfo)
     } else {
-      return !(networkIds && biobankIds && collectionInfo)
+      return !(networkIds && biobankInANetwork && collectionInfo)
     }
   },
   biobanks: ({ collectionInfo, biobankIds, biobanks }, { loading, rsql }) => {

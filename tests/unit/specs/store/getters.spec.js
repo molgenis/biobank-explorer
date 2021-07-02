@@ -185,10 +185,10 @@ describe('store', () => {
         expect(getters.loading(state)).toBe(true)
       })
 
-      it('should be false in networkview if both biobankIds and collectionInfo are present', () => {
+      it('should be false in networkview if both biobankInANetwork and collectionInfo are present', () => {
         const state = {
           viewMode: 'networkview',
-          biobankIds: ['biobank1'],
+          biobankInANetwork: ['biobank1'],
           collectionInfo: [{ collectionId: 'col-2', biobankId: 'biobank1' }],
           networkIds: ['network1']
         }

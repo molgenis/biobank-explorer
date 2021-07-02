@@ -134,7 +134,8 @@ describe('store', () => {
 
         await actions.GetBiobankIdsInNetwork({ state, commit })
         expect(api.get.mock.calls[0]).toEqual(['/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(n1,n2)'])
-        expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', response])
+        expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', []])
+        expect(commit.mock.calls[1]).toEqual(['SetBiobankIdsInANetwork', response])
       })
 
       it('should update the collection filter when in network view', async () => {
@@ -161,8 +162,9 @@ describe('store', () => {
 
         await actions.GetBiobankIdsInNetwork({ state, commit })
         expect(api.get.mock.calls[0]).toEqual(['/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(n1,n2)'])
-        expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', response])
-        expect(commit.mock.calls[1]).toEqual(
+        expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', []])
+        expect(commit.mock.calls[1]).toEqual(['SetBiobankIdsInANetwork', response])
+        expect(commit.mock.calls[2]).toEqual(
           ['UpdateFilter', { name: 'collection_network', value: [{ text: 'network 1', value: 'n1' }, { text: 'network 2', value: 'n2' }], router: undefined }])
       })
 
@@ -194,7 +196,7 @@ describe('store', () => {
         expect(commit.mock.calls[0]).toEqual(['SetBiobankIdsInANetwork', []])
       })
 
-      it('should set an error if something wrong happens i rest call', async () => {
+      it('should set an error if something wrong happens in rest call', async () => {
         const error = new Error('something wrong')
         api.get.mockRejectedValueOnce(error)
 
@@ -209,7 +211,7 @@ describe('store', () => {
 
         await actions.GetBiobankIdsInNetwork({ state, commit })
         expect(api.get.mock.calls[0]).toEqual(['/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(n1,n2)'])
-        expect(commit.mock.calls[0]).toEqual(['SetError', error])
+        expect(commit.mock.calls[1]).toEqual(['SetError', error])
       })
     })
 

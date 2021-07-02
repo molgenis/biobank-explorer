@@ -52,12 +52,13 @@ export default {
   GetBiobankIdsInNetwork ({ state, commit }) {
     // const biobankNetwork = state.route.query.biobank_network ? state.route.query.biobank_network : null
     const networkIds = state.filters.selections.biobank_network
+    commit('SetBiobankIdsInANetwork', [])
     if (networkIds && networkIds.length > 0) {
       const url = `/api/data/eu_bbmri_eric_biobanks?filter=id&size=10000&sort=name&q=network=in=(${networkIds})`
       api.get(url)
         .then(response => {
-          commit('SetBiobankIdsInANetwork', response)
           // Applies also the filter for collection in networks
+          commit('SetBiobankIdsInANetwork', response)
           if (state.viewMode === 'networkview') {
             const networkLabels = state.filters.labels.biobank_network
             commit('UpdateFilter', {

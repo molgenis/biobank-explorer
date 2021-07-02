@@ -204,10 +204,7 @@ export default {
     if (response.items && response.items.length > 0) {
       state.biobankInANetwork = [...response.items.map(ri => ri.data.id)]
     } else {
-      const biobankNetworkFilter = state.filters.selections.biobank_network
-      const isBiobankNetworkFilterActive = (biobankNetworkFilter && biobankNetworkFilter.length > 0)
-
-      state.biobankInANetwork = isBiobankNetworkFilterActive ? ['no-biobank-found'] : []
+      state.biobankInANetwork = []
     }
   },
   AddCollectionsToSelection (state, { collections, router }) {
