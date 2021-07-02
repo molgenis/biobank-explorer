@@ -13,7 +13,7 @@
         v-for="biobank in biobanksShown"
         :key="biobank.id || biobank"
         :biobank="biobank"
-        :initCollapsed="true">
+        :initCollapsed="(biobanksShown[0].id !== biobank.id || biobanksShown[0] !== biobank)">
       </biobank-card>
 
       <b-pagination
