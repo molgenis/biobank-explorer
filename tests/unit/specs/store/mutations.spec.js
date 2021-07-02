@@ -180,6 +180,10 @@ describe('store', () => {
         expect(state.collectionInfo).toBe(undefined)
       })
       it('should set the collectionInfo list. Every item contains information about a collection', () => {
+        state.biobankInfo = {
+          b1: { id: 'b1', name: 'biobank 1', networkIds: ['n1'] },
+          b2: { id: 'b2', name: 'biobank 2', networkIds: ['n1'] }
+        }
         const collectionResponse = {
           items: [
             { data: { id: 'col1', label: 'collection 1 label', name: 'collection 1 name', biobank: { data: { id: 'b1' } }, network: { items: [{ data: { id: 'n1' } }] } } },
@@ -193,6 +197,21 @@ describe('store', () => {
           { collectionId: 'col2', collectionName: 'collection 2', biobankId: 'b2', networkIds: ['n2'], isSubcollection: false },
           { collectionId: 'col3', collectionName: 'collection 3', biobankId: 'b2', networkIds: ['n2'], isSubcollection: true }
         ])
+      })
+      it('should update the list of networks for collection\'s biobank if not already present', () => {
+        state.biobankInfo = {
+          b1: { id: 'b1', name: 'biobank 1', networkIds: ['n1'] }
+        }
+        const collectionResponse = {
+          items: [
+            { data: { id: 'col1', label: 'collection 1', name: 'collection 1 name', biobank: { data: { id: 'b1' } }, network: { items: [{ data: { id: 'n2' } }] } } },
+            { data: { id: 'col2', name: 'collection 2', biobank: { data: { id: 'b1' } }, network: { items: [{ data: { id: 'n1' } }, { data: { id: 'n3' } }] }, parent_collection: undefined } },
+          ]
+        }
+        mutations.SetCollectionInfo(state, collectionResponse)
+        expect(state.biobankInfo).toStrictEqual({
+          b1: { id: 'b1', name: 'biobank 1', networkIds: ['n1', 'n2', 'n3'] }
+        })
       })
     })
 

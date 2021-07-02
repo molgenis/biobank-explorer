@@ -374,12 +374,53 @@ describe('store', () => {
           b3: { id: 'b3', name: 'biobank three', networkIds: ['n1'] },
           b4: { id: 'b4', name: 'biobank four', networkIds: ['n2', 'n3'] }
         }
-        const biobanks = ['b1', 'b2', 'b3', { id: 'b4', collections: { id: 'col-1' } }]
+        const biobanks = ['b1', 'b2', 'b3', { id: 'b4', collections: [{ id: 'col-1' }], network: [{ id: 'n2' }, { id: 'n3' }] }]
         const otherGetters = { loading: false, biobanks: biobanks }
         const expected = [
           { id: 'n1', name: 'network 1', biobanks: ['b1', 'b2', 'b3'] },
-          { id: 'n2', name: 'network 2', biobanks: ['b2', { id: 'b4', collections: { id: 'col-1' } }] },
-          { id: 'n3', name: 'network 3', biobanks: ['b1', { id: 'b4', collections: { id: 'col-1' } }] }
+          { id: 'n2', name: 'network 2', biobanks: ['b2', { id: 'b4', collections: [{ id: 'col-1' }], network: [{ id: 'n2' }, { id: 'n3' }] }] },
+          { id: 'n3', name: 'network 3', biobanks: ['b1', { id: 'b4', collections: [{ id: 'col-1' }], network: [{ id: 'n2' }, { id: 'n3' }] }] }
+        ]
+
+        expect(getters.networks(state, otherGetters)).toStrictEqual(expected)
+      })
+      it('should filter the collections to add only the ones of the network', () => {
+        state.networkIds = ['n1', 'n2', 'n4']
+        state.networks = {
+          n1: { id: 'n1', name: 'network 1' },
+          n2: { id: 'n2', name: 'network 2' },
+          n4: { id: 'n4', name: 'network 4' }
+        }
+        state.biobankInfo = {
+          b1: { id: 'b1', name: 'biobank one', networkIds: ['n1', 'n2', 'n4'] }
+        }
+        state.collectionInfo = [
+          { collectionId: 'c1', biobankId: 'b1', networkIds: ['n2'] },
+          { collectionId: 'c2', biobankId: 'b1', networkIds: ['n4'] }
+        ]
+
+        const biobanks = [{
+          id: 'b1',
+          collections: [{ id: 'c1', sub_collections: [] }, { id: 'c2', sub_collections: [] }],
+          network: [{ id: 'n1' }]
+        }]
+        const otherGetters = { loading: false, biobanks: biobanks }
+        const expected = [
+          {
+            id: 'n1',
+            name: 'network 1',
+            biobanks: [{ id: 'b1', collections: [{ id: 'c1', sub_collections: [] }, { id: 'c2', sub_collections: [] }], network: [{ id: 'n1' }] }]
+          },
+          {
+            id: 'n2',
+            name: 'network 2',
+            biobanks: [{ id: 'b1', collections: [{ id: 'c1', sub_collections: [] }], network: [{ id: 'n1' }] }]
+          },
+          {
+            id: 'n4',
+            name: 'network 4',
+            biobanks: [{ id: 'b1', collections: [{ id: 'c2', sub_collections: [] }], network: [{ id: 'n1' }] }]
+          }
         ]
 
         expect(getters.networks(state, otherGetters)).toStrictEqual(expected)

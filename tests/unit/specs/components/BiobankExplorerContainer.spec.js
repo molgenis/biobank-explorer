@@ -99,7 +99,7 @@ describe('BiobankExplorerContainer', () => {
     shallowMount(BiobankExplorerContainer, { propsData: { mode: 'networkview' }, store, localVue })
     expect(SetViewMode.mock.calls[0]).toEqual([store.state, 'networkview'])
     expect(GetNetworkInfo.mock.calls.length).toEqual(1)
-    expect(GetBiobankIds.mock.calls.length).toEqual(0)
+    expect(GetBiobankIds.mock.calls.length).toEqual(1)
     expect(GetCollectionInfo.mock.calls.length).toEqual(0)
   })
 

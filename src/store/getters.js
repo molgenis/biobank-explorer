@@ -126,15 +126,31 @@ export default {
     }
     return 'Something went wrong'
   },
-  networks: ({ biobankInfo, networks, networkIds }, { biobanks, loading }) => {
+  networks: ({ collectionInfo, biobankInfo, networks, networkIds }, { biobanks, loading }) => {
     if (loading) {
       return []
     }
-
     const biobanksByNetwork = groupBiobanksByNetworkId(biobanks, biobankInfo)
     return networkIds.map(networkId => {
       if (!Object.prototype.hasOwnProperty.call(networks, networkId)) {
         return networkId
+      }
+      // Filters the collections to keep only the ones that are part of the network.
+      // Notice that if it's one subcollection to be part of the network the collection appears but only with the subcollection
+      if (biobanksByNetwork[networkId] !== undefined) {
+        biobanksByNetwork[networkId].forEach(biobank => {
+          if (typeof biobank === 'object') { // Is it an object with all information needed or is it a string?
+            // If the biobank is directly part of the network all its collections are included so nothing to do
+            if (!biobank.network.map(network => network.id).includes(networkId)) {
+              // Get the ids of the collections to keep: they are the ones of the collection in the biobank and in the network
+              const collectionsInNetwork = collectionInfo.filter(
+                collectionInfo => collectionInfo.biobankId === biobank.id && collectionInfo.networkIds.includes(networkId)
+              ).map(collectionInfo => collectionInfo.collectionId)
+              // Filters the collections
+              biobank.collections = filterCollectionTree(collectionsInNetwork, biobank.collections)
+            }
+          }
+        })
       }
       const network = networks[networkId]
       return {
