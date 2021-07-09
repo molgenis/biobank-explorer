@@ -7,6 +7,8 @@ export default {
   negotiatorCollectionEntityId: '',
   negotiatorBiobankEntityId: '',
   isLoading: false,
+  currentPage: 1,
+  pageSize: 10,
   isPodium: false,
   podiumCollectionIds: [],
   error: null,

@@ -1,9 +1,13 @@
 <template>
-  <ActiveFilters
-    :value="activeFilters"
-    @input="changeAllFilters"
-    :filters="filters">
-  </ActiveFilters>
+  <div>
+    <span v-if="anyActiveFilters">Active filters:</span>
+    <ActiveFilters
+      :value="activeFilters"
+      @input="changeAllFilters"
+      :filters="filters"
+    >
+    </ActiveFilters>
+  </div>
 </template>
 
 <script>
@@ -22,12 +26,24 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['activeFilters', 'filterDefinitions', 'selectedCollections']),
+    ...mapGetters([
+      'activeFilters',
+      'filterDefinitions',
+      'selectedCollections'
+    ]),
     filters () {
       return this.filterDefinitions.filter((facet) => {
         // config option showCountryFacet is used to toggle Country facet
         return !(this.showCountryFacet === false && facet.name === 'country')
       })
+    },
+    anyActiveFilters () {
+      for (const filter in this.activeFilters) {
+        if (this.activeFilters[filter].length) {
+          return true
+        }
+      }
+      return false
     }
   }
 }

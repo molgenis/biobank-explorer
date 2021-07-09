@@ -1,11 +1,5 @@
 <template>
   <div class="search-box-container">
-    <div class="mb-3">
-      <div class="col-md-12 p-0">
-        <active-filter-list></active-filter-list>
-      </div>
-    </div>
-
     <div class="row">
       <div class="col-md-12">
         <div class="biobank-number-report-container">
@@ -25,27 +19,7 @@
   </div>
 </template>
 
-<style>
-.biobank-number-report-container {
-  border-bottom: solid 1px black;
-  width: 100%;
-}
-
-.search-input-container {
-  margin-bottom: 1rem;
-}
-
-.search-box-container {
-  margin-bottom: 1rem;
-}
-
-.search-input-addon:hover {
-  cursor: pointer;
-}
-</style>
-
 <script>
-import ActiveFilterList from './filters/ActiveFilterList'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -54,9 +28,13 @@ export default {
     numberOfSubCollections () {
       return this.foundCollectionIds.length - this.parentCollections.length
     }
-  },
-  components: {
-    ActiveFilterList
   }
 }
 </script>
+
+<style>
+.biobank-number-report-container {
+  border-bottom: solid 1px black;
+  width: 100%;
+}
+</style>
