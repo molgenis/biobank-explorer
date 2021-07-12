@@ -86,5 +86,19 @@ describe('FilterContainer', () => {
       expect(mutations.UpdateFilter).toHaveBeenCalledTimes(1)
       expect(mutations.UpdateFilterSatisfyAll).toHaveBeenCalledTimes(1)
     })
+
+    it('should not set the showSatisfyAllCheckbox property for filters where the checkbox is not needed', async () => {
+      store = new Vuex.Store({
+        state: mockState(),
+        actions,
+        mutations,
+        getters
+      })
+
+      wrapper = shallowMount(FilterContainer, { store, localVue })
+      expect(wrapper.vm.filters.find((filter) => filter.name === 'country').showSatisfyAllCheckbox).toBeUndefined()
+      expect(wrapper.vm.filters.find((filter) => filter.name === 'covid19network').showSatisfyAllCheckbox).toBeUndefined()
+      expect(wrapper.vm.filters.find((filter) => filter.name === 'commercial_use').showSatisfyAllCheckbox).toBeUndefined()
+    })
   })
 })
