@@ -16,7 +16,6 @@
         :is="filter.component"
         :value="activeFilters[filter.name]"
         :satisfyAllValue="filter.satisfyAll"
-        :show-satisfy-all-checkbox="true"
         v-bind="filter"
         @input="(value) => filterChange(filter.name, value)"
         @satisfy-all="(satisfyAllValue) => filterSatisfyAllChange(filter.name, satisfyAllValue)"
